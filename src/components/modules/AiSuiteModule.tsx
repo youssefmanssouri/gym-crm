@@ -6,8 +6,7 @@ import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Badge } from '../ui/Badge';
-import { chatWithAIFitnessAssistant, generateAIBusinessInsights } from '@/lib/gemini';
-import { INITIAL_KPIS } from '@/lib/mock-data';
+import { apiChatWithAI, apiGenerateBusinessInsights } from '@/lib/api-client';
 
 export const AiSuiteModule: React.FC = () => {
   const [messages, setMessages] = useState<Array<{ sender: 'USER' | 'AI'; text: string }>>([
@@ -31,10 +30,11 @@ export const AiSuiteModule: React.FC = () => {
     setIsTyping(true);
 
     try {
-      const aiReply = await chatWithAIFitnessAssistant(userText);
-      setMessages((prev) => [...prev, { sender: 'AI', text: aiReply || 'I am processing your query.' }]);
-    } catch (e) {
-      console.error('AI chat error:', e);
+      const data = await apiChatWithAI(userText);
+      setMessages((prev) => [...prev, { sender: 'AI', text: data.response || 'I am processing your query.' }]);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'AI chat request failed';
+      setMessages((prev) => [...prev, { sender: 'AI', text: `Error: ${message}` }]);
     } finally {
       setIsTyping(false);
     }
@@ -43,10 +43,11 @@ export const AiSuiteModule: React.FC = () => {
   const handleGenerateBusinessInsights = async () => {
     setIsReportLoading(true);
     try {
-      const report = await generateAIBusinessInsights(INITIAL_KPIS);
-      setAiReport(report);
-    } catch (e) {
-      console.error('AI report error:', e);
+      const data = await apiGenerateBusinessInsights();
+      setAiReport(data.report);
+    } catch (e: unknown) {
+      const message = e instanceof Error ? e.message : 'Failed to generate insights';
+      setAiReport(`⚠️ Unable to generate AI intelligence report: ${message}`);
     } finally {
       setIsReportLoading(false);
     }

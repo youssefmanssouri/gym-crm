@@ -1,15 +1,22 @@
 import { NextResponse } from 'next/server';
-import { MOCK_USERS } from '@/lib/mock-data';
+import { getCurrentUser } from '@/lib/auth-server';
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const role = (searchParams.get('role') || 'ADMIN').toUpperCase();
-  const roleKey = role.toLowerCase();
-  const user = MOCK_USERS[roleKey] || MOCK_USERS.admin;
+export async function GET() {
+  const user = await getCurrentUser();
+
+  if (!user) {
+    return NextResponse.json(
+      {
+        authenticated: false,
+        user: null,
+      },
+      { status: 401 }
+    );
+  }
 
   return NextResponse.json({
-    user,
-    role,
     authenticated: true,
+    user,
+    role: user.role,
   });
 }

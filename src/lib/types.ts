@@ -85,11 +85,13 @@ export interface ExerciseItem {
   instructions?: string;
 }
 
+export type WorkoutLevel = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+
 export interface WorkoutPlan {
   id: string;
   title: string;
   description: string;
-  level: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+  level: WorkoutLevel;
   goal: string;
   isTemplate: boolean;
   createdBy: string;
@@ -116,7 +118,9 @@ export interface MealCategory {
 export interface NutritionPlan {
   id: string;
   title: string;
+  dietType?: string;
   assignedToName?: string;
+  assignedToId?: string | null;
   createdBy: string;
   dailyCalories: number;
   proteinGrams: number;

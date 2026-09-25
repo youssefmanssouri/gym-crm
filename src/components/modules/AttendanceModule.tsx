@@ -1,63 +1,69 @@
 'use client';
 
-import React, { useState } from 'react';
-import { QrCode, Search, CheckCircle2, AlertCircle, Clock, ShieldCheck, UserCheck, Sparkles, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { QrCode, Search, CheckCircle2, AlertCircle, Clock, ShieldCheck, UserCheck, Sparkles, RefreshCw, Loader2 } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Badge } from '../ui/Badge';
 import { AttendanceRecord, MemberProfile } from '@/lib/types';
-import { MOCK_ATTENDANCE, MOCK_MEMBERS } from '@/lib/mock-data';
+import { apiGetAttendance, apiCheckInMember } from '@/lib/api-client';
 
 interface AttendanceModuleProps {
   onScanCompleted?: () => void;
 }
 
 export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ onScanCompleted }) => {
-  const [attendanceList, setAttendanceList] = useState<AttendanceRecord[]>(MOCK_ATTENDANCE);
+  const [attendanceList, setAttendanceList] = useState<AttendanceRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isScanning, setIsScanning] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [qrInput, setQrInput] = useState('');
   const [scanResult, setScanResult] = useState<{ success: boolean; message: string; member?: MemberProfile } | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const handleSimulateScan = (codeToScan?: string) => {
-    const targetCode = codeToScan || qrInput || 'APEX-MEMBER-7722';
-    const foundMember = MOCK_MEMBERS.find((m) => m.qrCode.toLowerCase() === targetCode.toLowerCase() || m.user.email.toLowerCase() === targetCode.toLowerCase());
+  const loadAttendance = async () => {
+    setIsLoading(true);
+    setErrorMessage(null);
+    try {
+      const data = await apiGetAttendance();
+      setAttendanceList(data);
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Failed to load attendance log');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    if (!foundMember) {
+  useEffect(() => {
+    loadAttendance();
+  }, []);
+
+  const handleSimulateScan = async (codeToScan?: string) => {
+    const targetCode = (codeToScan || qrInput || 'APEX-MEMBER-7722').trim();
+    if (!targetCode) return;
+
+    setIsScanning(true);
+    setScanResult(null);
+
+    try {
+      const res = await apiCheckInMember(targetCode);
+      setAttendanceList((prev) => [res.attendance, ...prev.filter((a) => a.id !== res.attendance.id)]);
+      setScanResult({
+        success: true,
+        message: res.message || `Welcome, ${res.member?.user?.name || 'Member'}! Access Granted.`,
+        member: res.member,
+      });
+      setQrInput('');
+      if (onScanCompleted) onScanCompleted();
+    } catch (err: any) {
       setScanResult({
         success: false,
-        message: 'Invalid QR Pass Code or unregistered member account.',
+        message: err.message || 'Check-in failed. Please verify QR code or active membership status.',
       });
-      return;
+    } finally {
+      setIsScanning(false);
     }
-
-    if (foundMember.membership?.status !== 'ACTIVE') {
-      setScanResult({
-        success: false,
-        message: `Access Denied: Membership status is ${foundMember.membership?.status || 'EXPIRED'}. Please renew.`,
-        member: foundMember,
-      });
-      return;
-    }
-
-    const newRecord: AttendanceRecord = {
-      id: `att-${Date.now()}`,
-      userId: foundMember.userId,
-      userName: foundMember.user.name,
-      userAvatar: foundMember.user.avatar,
-      userRole: 'MEMBER',
-      checkInTime: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      method: 'QR_CODE',
-    };
-
-    setAttendanceList([newRecord, ...attendanceList]);
-    setScanResult({
-      success: true,
-      message: `Welcome, ${foundMember.user.name}! Access Granted.`,
-      member: foundMember,
-    });
-    setQrInput('');
-    if (onScanCompleted) onScanCompleted();
   };
 
   return (
@@ -68,6 +74,9 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ onScanComple
           <h2 className="text-2xl font-extrabold text-white tracking-tight">Attendance & QR Check-in Terminal</h2>
           <p className="text-xs text-zinc-400 mt-1">Real-time facility access scanner and receptionist check-in console.</p>
         </div>
+        <Button variant="outline" size="sm" icon={<RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />} onClick={loadAttendance}>
+          Refresh Log
+        </Button>
       </div>
 
       {/* Terminal Scanner Section */}
@@ -101,16 +110,18 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ onScanComple
                 size="sm"
                 className="text-xs text-zinc-300 justify-start"
                 onClick={() => handleSimulateScan('APEX-MEMBER-7722')}
+                disabled={isScanning}
               >
-                Scan David Chen (Active)
+                Scan David (Active)
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 className="text-xs text-zinc-300 justify-start"
-                onClick={() => handleSimulateScan('APEX-MEMBER-3322')}
+                onClick={() => handleSimulateScan('APEX-MEMBER-INVALID')}
+                disabled={isScanning}
               >
-                Scan James (Expired)
+                Scan Invalid Code
               </Button>
             </div>
 
@@ -120,9 +131,12 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ onScanComple
                 value={qrInput}
                 onChange={(e) => setQrInput(e.target.value)}
                 className="text-xs"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSimulateScan();
+                }}
               />
-              <Button variant="glow" size="sm" onClick={() => handleSimulateScan()}>
-                Scan
+              <Button variant="glow" size="sm" onClick={() => handleSimulateScan()} disabled={isScanning}>
+                {isScanning ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Scan'}
               </Button>
             </div>
           </div>
@@ -150,11 +164,24 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ onScanComple
           <div>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-base font-bold text-white tracking-tight">Today's Check-in Log</h3>
+                <h3 className="text-base font-bold text-white tracking-tight">Today&apos;s Check-in Log</h3>
                 <p className="text-xs text-zinc-400">Recorded entry scans for current operating session</p>
               </div>
               <Badge variant="purple">{attendanceList.length} Checked In</Badge>
             </div>
+
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center py-12 text-zinc-500 text-xs">
+                <Loader2 className="w-6 h-6 animate-spin text-cyan-400 mb-2" />
+                <span>Loading facility attendance log...</span>
+              </div>
+            ) : attendanceList.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-zinc-500 text-xs text-center">
+                <QrCode className="w-8 h-8 text-zinc-600 mb-2" />
+                <p className="font-medium text-zinc-400">No member check-ins recorded yet today.</p>
+                <p className="text-[11px] text-zinc-600 mt-1">Scan a member QR code at the terminal to check in.</p>
+              </div>
+            ) : (
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
@@ -196,6 +223,7 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ onScanComple
                 </tbody>
               </table>
             </div>
+            )}
           </div>
         </Card>
       </div>

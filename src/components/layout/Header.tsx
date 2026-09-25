@@ -1,21 +1,37 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Search, Bell, Shield, ChevronDown, Sparkles, CheckCircle2, User as UserIcon, Sun, Moon, Monitor } from 'lucide-react';
-import { UserRole, User } from '@/lib/types';
+import {
+  Search,
+  Bell,
+  ChevronDown,
+  Sparkles,
+  CheckCircle2,
+  LogOut,
+  Sun,
+  Moon,
+  Monitor,
+  ShieldCheck,
+} from 'lucide-react';
+import { User } from '@/lib/types';
 import { Badge } from '../ui/Badge';
 
 interface HeaderProps {
   currentUser: User;
-  onSwitchRole: (role: UserRole) => void;
   onOpenCheckIn: () => void;
   onSearchQuery?: (query: string) => void;
+  onLogout: () => void;
 }
 
 export type ThemeMode = 'dark' | 'light' | 'system';
 
-export const Header: React.FC<HeaderProps> = ({ currentUser, onSwitchRole, onOpenCheckIn, onSearchQuery }) => {
-  const [showRoleMenu, setShowRoleMenu] = useState(false);
+export const Header: React.FC<HeaderProps> = ({
+  currentUser,
+  onOpenCheckIn,
+  onSearchQuery,
+  onLogout,
+}) => {
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showThemeMenu, setShowThemeMenu] = useState(false);
   const [theme, setTheme] = useState<ThemeMode>('dark');
@@ -44,14 +60,6 @@ export const Header: React.FC<HeaderProps> = ({ currentUser, onSwitchRole, onOpe
     mediaQuery.addEventListener('change', handleSystemChange);
     return () => mediaQuery.removeEventListener('change', handleSystemChange);
   }, [theme]);
-
-  const rolesList: { role: UserRole; label: string; badge: string }[] = [
-    { role: 'ADMIN', label: 'Alex Vance (Admin)', badge: 'ADMIN' },
-    { role: 'MANAGER', label: 'Sarah Jenkins (Manager)', badge: 'MANAGER' },
-    { role: 'TRAINER', label: 'Marcus Stone (Trainer)', badge: 'TRAINER' },
-    { role: 'RECEPTIONIST', label: 'Elena Rostova (Receptionist)', badge: 'RECEPTIONIST' },
-    { role: 'MEMBER', label: 'David Chen (Member)', badge: 'MEMBER' },
-  ];
 
   const themeOptions: { mode: ThemeMode; label: string; icon: React.ReactNode }[] = [
     { mode: 'light', label: 'Light', icon: <Sun className="w-4 h-4 text-amber-400" /> },
@@ -165,12 +173,13 @@ export const Header: React.FC<HeaderProps> = ({ currentUser, onSwitchRole, onOpe
           )}
         </div>
 
-        {/* Demo Role Switcher Dropdown */}
+        {/* Authenticated User Profile & Logout Dropdown */}
         <div className="relative">
           <button
-            onClick={() => setShowRoleMenu(!showRoleMenu)}
+            onClick={() => setShowUserMenu(!showUserMenu)}
             className="flex items-center gap-2.5 bg-zinc-900 hover:bg-zinc-800/80 border border-zinc-800 px-3 py-1.5 rounded-xl transition-colors"
           >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={currentUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80'}
               alt={currentUser.name}
@@ -183,29 +192,43 @@ export const Header: React.FC<HeaderProps> = ({ currentUser, onSwitchRole, onOpe
             <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
           </button>
 
-          {showRoleMenu && (
-            <div className="absolute right-0 mt-2 w-64 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl p-2 z-40">
-              <div className="px-3 py-2 text-[10px] font-bold text-zinc-500 uppercase tracking-wider border-b border-zinc-800">
-                Switch Demo User & RBAC Role
-              </div>
-              <div className="py-1 space-y-1">
-                {rolesList.map((item) => (
-                  <button
-                    key={item.role}
-                    onClick={() => {
-                      onSwitchRole(item.role);
-                      setShowRoleMenu(false);
-                    }}
-                    className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-left transition-colors ${
-                      currentUser.role === item.role ? 'bg-zinc-800 text-cyan-400 font-semibold' : 'text-zinc-300 hover:bg-zinc-800/50'
-                    }`}
-                  >
-                    <span>{item.label}</span>
-                    <Badge variant={item.role === 'ADMIN' ? 'cyan' : item.role === 'TRAINER' ? 'purple' : 'default'}>
-                      {item.badge}
+          {showUserMenu && (
+            <div className="absolute right-0 mt-2 w-64 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl p-3 z-40 space-y-3">
+              <div className="flex items-center gap-3 pb-3 border-b border-zinc-800">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={currentUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80'}
+                  alt={currentUser.name}
+                  className="w-10 h-10 rounded-xl object-cover border border-zinc-700"
+                />
+                <div className="overflow-hidden">
+                  <p className="text-xs font-bold text-white truncate">{currentUser.name}</p>
+                  <p className="text-[10px] text-zinc-400 truncate">{currentUser.email}</p>
+                  <div className="mt-1">
+                    <Badge variant={currentUser.role === 'ADMIN' ? 'cyan' : currentUser.role === 'TRAINER' ? 'purple' : 'default'}>
+                      {currentUser.role}
                     </Badge>
-                  </button>
-                ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <div className="px-2 py-0.5 text-[10px] text-zinc-500 font-mono uppercase tracking-wider flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3 text-emerald-400" /> Server Verified Session
+                </div>
+                <div className="px-2 py-0.5 text-[11px] text-zinc-300">
+                  Status: <span className="text-emerald-400 font-medium">Active Session</span>
+                </div>
+              </div>
+
+              <div className="pt-2 border-t border-zinc-800">
+                <button
+                  onClick={onLogout}
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 transition-all"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Sign Out</span>
+                </button>
               </div>
             </div>
           )}
@@ -214,4 +237,3 @@ export const Header: React.FC<HeaderProps> = ({ currentUser, onSwitchRole, onOpe
     </header>
   );
 };
-

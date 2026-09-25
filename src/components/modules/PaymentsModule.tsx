@@ -8,11 +8,19 @@ import { Input } from '../ui/Input';
 import { Badge } from '../ui/Badge';
 import { Modal } from '../ui/Modal';
 import { PaymentRecord } from '@/lib/types';
-import { MOCK_PAYMENTS } from '@/lib/mock-data';
 import { exportToCSV, printInvoice } from '@/lib/export-utils';
+import { apiGetPayments, apiCreatePayment } from '@/lib/api-client';
 
 export const PaymentsModule: React.FC = () => {
-  const [payments, setPayments] = useState<PaymentRecord[]>(MOCK_PAYMENTS);
+  const [payments, setPayments] = useState<PaymentRecord[]>([]);
+  const [aggregates, setAggregates] = useState({
+    totalRevenue: 0,
+    pendingAmount: 0,
+    refundRate: '0.0%',
+  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const [search, setSearch] = useState('');
   const [isNewPaymentModalOpen, setIsNewPaymentModalOpen] = useState(false);
 
@@ -22,6 +30,23 @@ export const PaymentsModule: React.FC = () => {
   const [amount, setAmount] = useState('159');
   const [method, setMethod] = useState<'CARD' | 'CASH' | 'RECURRING'>('CARD');
 
+  const loadPayments = async () => {
+    setIsLoading(true);
+    try {
+      const data = await apiGetPayments();
+      setPayments(data.payments);
+      setAggregates(data.aggregates);
+    } catch (err: unknown) {
+      console.error('Failed to load payments:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    loadPayments();
+  }, []);
+
   const filteredPayments = payments.filter(
     (p) =>
       p.userName.toLowerCase().includes(search.toLowerCase()) ||
@@ -29,27 +54,39 @@ export const PaymentsModule: React.FC = () => {
       p.invoiceNumber.toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleRecordPayment = (e: React.FormEvent) => {
+  const handleRecordPayment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!payerName || !amount) return;
+    const numericAmount = parseFloat(amount);
+    if (!payerName || isNaN(numericAmount) || numericAmount <= 0) {
+      setErrorMsg('Please enter a valid member name and an amount greater than 0.');
+      return;
+    }
 
-    const newPay: PaymentRecord = {
-      id: `pay-${Date.now()}`,
-      userId: `usr-${Date.now()}`,
-      userName: payerName,
-      userEmail: payerEmail || 'member@apexfitness.com',
-      membershipPlanName: 'Manual Payment Fee',
-      amount: parseFloat(amount) || 159,
-      paymentMethod: method,
-      status: 'COMPLETED',
-      invoiceNumber: `INV-2026-${Math.floor(10000 + Math.random() * 90000)}`,
-      description: 'Gym Membership Fee Payment',
-      date: new Date().toLocaleString(),
-    };
+    setIsSubmitting(true);
+    setErrorMsg('');
 
-    setPayments([newPay, ...payments]);
-    setIsNewPaymentModalOpen(false);
-    setPayerName('');
+    try {
+      const created = await apiCreatePayment({
+        amount: numericAmount,
+        paymentMethod: method,
+        memberName: payerName,
+        memberEmail: payerEmail || undefined,
+        description: 'Gym Fee Payment',
+      });
+
+      setPayments([created, ...payments]);
+      setAggregates((prev) => ({
+        ...prev,
+        totalRevenue: prev.totalRevenue + created.amount,
+      }));
+      setIsNewPaymentModalOpen(false);
+      setPayerName('');
+      setPayerEmail('');
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to record payment');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleExportCSV = () => {
@@ -87,17 +124,21 @@ export const PaymentsModule: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card glow className="p-4">
           <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Total Revenue Processed</span>
-          <div className="text-2xl font-black text-white mt-1">$28,450.00</div>
-          <span className="text-[11px] text-emerald-400 font-semibold">+12.8% vs last month</span>
+          <div className="text-2xl font-black text-white mt-1">
+            ${aggregates.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </div>
+          <span className="text-[11px] text-emerald-400 font-semibold">Active ledger total</span>
         </Card>
         <Card glow className="p-4">
           <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Pending Automated Debits</span>
-          <div className="text-2xl font-black text-amber-400 mt-1">$1,450.00</div>
-          <span className="text-[11px] text-zinc-500">4 subscriptions queued for retry</span>
+          <div className="text-2xl font-black text-amber-400 mt-1">
+            ${aggregates.pendingAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </div>
+          <span className="text-[11px] text-zinc-500">Unsettled / queued subscriptions</span>
         </Card>
         <Card glow className="p-4">
           <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Refund Rate</span>
-          <div className="text-2xl font-black text-white mt-1">0.4%</div>
+          <div className="text-2xl font-black text-white mt-1">{aggregates.refundRate}</div>
           <span className="text-[11px] text-emerald-400 font-semibold">Low risk indicator</span>
         </Card>
       </div>
@@ -159,15 +200,20 @@ export const PaymentsModule: React.FC = () => {
       {/* Record Payment Modal */}
       <Modal isOpen={isNewPaymentModalOpen} onClose={() => setIsNewPaymentModalOpen(false)} title="Record New Payment" subtitle="Process cash, card, or manual membership fee">
         <form onSubmit={handleRecordPayment} className="space-y-4">
+          {errorMsg && (
+            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs">
+              {errorMsg}
+            </div>
+          )}
           <Input label="Member Name" value={payerName} onChange={(e) => setPayerName(e.target.value)} placeholder="e.g. Emily Watson" required />
           <Input label="Email Address" type="email" value={payerEmail} onChange={(e) => setPayerEmail(e.target.value)} placeholder="emily@yahoo.com" />
-          <Input label="Amount Paid ($ USD)" type="number" value={amount} onChange={(e) => setAmount(e.target.value)} required />
+          <Input label="Amount Paid ($ USD)" type="number" min="0.01" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} required />
 
           <div>
             <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider block mb-1">Payment Method</label>
             <select
               value={method}
-              onChange={(e) => setMethod(e.target.value as any)}
+              onChange={(e) => setMethod(e.target.value as 'CARD' | 'CASH' | 'RECURRING')}
               className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2 text-sm text-zinc-100 focus:outline-none focus:border-cyan-500"
             >
               <option value="CARD">Credit / Debit Card</option>
@@ -178,7 +224,9 @@ export const PaymentsModule: React.FC = () => {
 
           <div className="pt-4 flex items-center justify-end gap-3 border-t border-zinc-800">
             <Button variant="ghost" type="button" onClick={() => setIsNewPaymentModalOpen(false)}>Cancel</Button>
-            <Button variant="glow" type="submit">Complete & Print Receipt</Button>
+            <Button variant="glow" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Recording...' : 'Complete & Record'}
+            </Button>
           </div>
         </form>
       </Modal>

@@ -27,15 +27,20 @@ import { Input } from '../ui/Input';
 import { Badge } from '../ui/Badge';
 import { Modal } from '../ui/Modal';
 import { MemberProfile, MembershipPlan } from '@/lib/types';
-import { MOCK_MEMBERS, MOCK_MEMBERSHIP_PLANS } from '@/lib/mock-data';
+import { MOCK_MEMBERSHIP_PLANS } from '@/lib/mock-data';
 import { exportToCSV } from '@/lib/export-utils';
+import { apiGetMembers, apiCreateMember, apiDeleteMember, apiGetPlans } from '@/lib/api-client';
 
 interface MembersModuleProps {
   initialSearch?: string;
 }
 
 export const MembersModule: React.FC<MembersModuleProps> = ({ initialSearch = '' }) => {
-  const [members, setMembers] = useState<MemberProfile[]>(MOCK_MEMBERS);
+  const [members, setMembers] = useState<MemberProfile[]>([]);
+  const [plans, setPlans] = useState<MembershipPlan[]>(MOCK_MEMBERSHIP_PLANS);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
   const [search, setSearch] = useState(initialSearch);
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [selectedMember, setSelectedMember] = useState<MemberProfile | null>(null);
@@ -51,6 +56,29 @@ export const MembersModule: React.FC<MembersModuleProps> = ({ initialSearch = ''
   const [newGoal, setNewGoal] = useState('Strength & Muscle Gain');
   const [selectedPlanId, setSelectedPlanId] = useState('plan-quarterly');
 
+  const loadData = async () => {
+    setIsLoading(true);
+    try {
+      const [membersData, plansData] = await Promise.all([
+        apiGetMembers().catch(() => []),
+        apiGetPlans().catch(() => MOCK_MEMBERSHIP_PLANS),
+      ]);
+      setMembers(membersData);
+      if (plansData.length > 0) {
+        setPlans(plansData);
+        setSelectedPlanId(plansData[0].id);
+      }
+    } catch (err: unknown) {
+      console.error('Failed to load members:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
+    loadData();
+  }, []);
+
   const filteredMembers = members.filter((m) => {
     const matchesSearch =
       m.user.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -64,49 +92,47 @@ export const MembersModule: React.FC<MembersModuleProps> = ({ initialSearch = ''
     return matchesSearch && matchesStatus;
   });
 
-  const handleCreateMember = (e: React.FormEvent) => {
+  const handleCreateMember = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName || !newEmail) return;
 
-    const plan = MOCK_MEMBERSHIP_PLANS.find((p) => p.id === selectedPlanId) || MOCK_MEMBERSHIP_PLANS[0];
+    setIsSubmitting(true);
+    setErrorMsg('');
 
-    const newMember: MemberProfile = {
-      id: `mem-${Date.now()}`,
-      userId: `usr-${Date.now()}`,
-      user: {
-        id: `usr-${Date.now()}`,
-        email: newEmail,
+    try {
+      const created = await apiCreateMember({
         name: newName,
-        role: 'MEMBER',
-        status: 'ACTIVE',
-        avatar: `https://images.unsplash.com/photo-${1534528741775 + Math.floor(Math.random() * 1000)}?auto=format&fit=crop&w=300&q=80`,
+        email: newEmail,
         phone: newPhone || '+1 (555) 019-0000',
-        createdAt: new Date().toISOString().slice(0, 10),
-      },
-      gender: newGender,
-      heightCm: parseFloat(newHeight) || 175,
-      weightKg: parseFloat(newWeight) || 75,
-      targetWeightKg: (parseFloat(newWeight) || 75) - 3,
-      fitnessGoal: newGoal,
-      qrCode: `APEX-MEMBER-${Math.floor(1000 + Math.random() * 9000)}`,
-      joinDate: new Date().toISOString().slice(0, 10),
-      membership: {
-        id: `m-sub-${Date.now()}`,
-        memberId: `mem-${Date.now()}`,
-        planId: plan.id,
-        plan,
-        startDate: new Date().toISOString().slice(0, 10),
-        endDate: new Date(Date.now() + plan.durationMonths * 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
-        status: 'ACTIVE',
-        autoRenew: true,
-        pricePaid: plan.price,
-      },
-    };
+        gender: newGender,
+        heightCm: parseFloat(newHeight) || 175,
+        weightKg: parseFloat(newWeight) || 75,
+        targetWeightKg: (parseFloat(newWeight) || 75) - 3,
+        fitnessGoal: newGoal,
+        planId: selectedPlanId,
+      });
 
-    setMembers([newMember, ...members]);
-    setIsAddModalOpen(false);
-    setNewName('');
-    setNewEmail('');
+      setMembers([created, ...members]);
+      setIsAddModalOpen(false);
+      setNewName('');
+      setNewEmail('');
+      setNewPhone('');
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : 'Failed to register member');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteMember = async (id: string, name: string) => {
+    if (!confirm(`Are you sure you want to permanently delete member ${name}?`)) return;
+    try {
+      await apiDeleteMember(id);
+      setMembers(members.filter((m) => m.id !== id));
+      if (selectedMember?.id === id) setSelectedMember(null);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : 'Failed to delete member');
+    }
   };
 
   const handleExportCSV = () => {
@@ -294,8 +320,9 @@ export const MembersModule: React.FC<MembersModuleProps> = ({ initialSearch = ''
                   <p className="text-xs text-zinc-400">Valid: {selectedMember.membership?.startDate} to {selectedMember.membership?.endDate}</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm">Freeze Plan</Button>
-                  <Button variant="glow" size="sm">Renew Membership</Button>
+                  <Button variant="danger" size="sm" onClick={() => handleDeleteMember(selectedMember.id, selectedMember.user.name)}>
+                    Delete Member
+                  </Button>
                 </div>
               </div>
             </div>
@@ -306,6 +333,11 @@ export const MembersModule: React.FC<MembersModuleProps> = ({ initialSearch = ''
       {/* Add New Member Modal */}
       <Modal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} title="Register New Gym Member" subtitle="Create member account and issue digital pass">
         <form onSubmit={handleCreateMember} className="space-y-4">
+          {errorMsg && (
+            <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs">
+              {errorMsg}
+            </div>
+          )}
           <Input label="Full Name" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. Michael Jordan" required />
           <Input label="Email Address" type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="michael@gmail.com" required />
           <Input label="Phone Number" value={newPhone} onChange={(e) => setNewPhone(e.target.value)} placeholder="+1 (555) 000-0000" />
@@ -322,7 +354,7 @@ export const MembersModule: React.FC<MembersModuleProps> = ({ initialSearch = ''
               onChange={(e) => setSelectedPlanId(e.target.value)}
               className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2 text-sm text-zinc-100 focus:outline-none focus:border-cyan-500"
             >
-              {MOCK_MEMBERSHIP_PLANS.map((plan) => (
+              {plans.map((plan) => (
                 <option key={plan.id} value={plan.id}>
                   {plan.name} (${plan.price} / {plan.durationMonths}mo)
                 </option>
@@ -332,7 +364,9 @@ export const MembersModule: React.FC<MembersModuleProps> = ({ initialSearch = ''
 
           <div className="pt-4 flex items-center justify-end gap-3 border-t border-zinc-800">
             <Button variant="ghost" type="button" onClick={() => setIsAddModalOpen(false)}>Cancel</Button>
-            <Button variant="glow" type="submit">Create Account & Pass</Button>
+            <Button variant="glow" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Registering...' : 'Create Account & Pass'}
+            </Button>
           </div>
         </form>
       </Modal>

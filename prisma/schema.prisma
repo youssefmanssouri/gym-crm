@@ -1,5 +1,5 @@
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -7,34 +7,96 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model User {
-  id            String       @id @default(uuid())
-  email         String       @unique
-  passwordHash  String
-  name          String
-  avatar        String?
-  role          String       @default("MEMBER") // ADMIN, MANAGER, TRAINER, RECEPTIONIST, MEMBER
-  status        String       @default("ACTIVE") // ACTIVE, INACTIVE, SUSPENDED
-  phone         String?
-  bio           String?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+enum UserRole {
+  ADMIN
+  MANAGER
+  TRAINER
+  RECEPTIONIST
+  MEMBER
+}
 
-  memberProfile       MemberProfile?
-  assignedWorkouts    WorkoutPlan[]    @relation("AssignedWorkouts")
-  createdWorkouts     WorkoutPlan[]    @relation("CreatedWorkouts")
-  assignedNutrition   NutritionPlan[]  @relation("AssignedNutrition")
-  createdNutrition    NutritionPlan[]  @relation("CreatedNutrition")
-  attendances         Attendance[]     @relation("MemberAttendance")
-  payments            Payment[]
-  notifications       Notification[]
-  auditLogs           AuditLog[]
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum MembershipStatus {
+  ACTIVE
+  FROZEN
+  CANCELLED
+  EXPIRED
+}
+
+enum PlanType {
+  MONTHLY
+  QUARTERLY
+  SEMIANNUAL
+  ANNUAL
+  STUDENT
+  VIP
+  PERSONAL_TRAINING
+}
+
+enum CheckInMethod {
+  QR_CODE
+  BARCODE
+  MANUAL
+  RECEPTIONIST
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  RECURRING
+  ONLINE
+}
+
+enum PaymentStatus {
+  COMPLETED
+  PENDING
+  REFUNDED
+  FAILED
+}
+
+enum ProductCategory {
+  SUPPLEMENT
+  DRINK
+  MERCHANDISE
+  EQUIPMENT
+  OTHER
+}
+
+model User {
+  id           String     @id @default(uuid())
+  email        String     @unique
+  passwordHash String
+  name         String
+  avatar       String?
+  role         UserRole   @default(MEMBER)
+  status       UserStatus @default(ACTIVE)
+  phone        String?
+  bio          String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  memberProfile     MemberProfile?
+  assignedWorkouts  WorkoutPlan[]   @relation("AssignedWorkouts")
+  createdWorkouts   WorkoutPlan[]   @relation("CreatedWorkouts")
+  assignedNutrition NutritionPlan[] @relation("AssignedNutrition")
+  createdNutrition  NutritionPlan[] @relation("CreatedNutrition")
+  attendances       Attendance[]    @relation("MemberAttendance")
+  payments          Payment[]
+  notifications     Notification[]
+  auditLogs         AuditLog[]
+
+  @@index([role])
 }
 
 model MemberProfile {
-  id                    String     @id @default(uuid())
-  userId                String     @unique
-  user                  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                    String    @id @default(uuid())
+  userId                String    @unique
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   gender                String?
   dob                   DateTime?
   heightCm              Float?
@@ -44,51 +106,59 @@ model MemberProfile {
   medicalNotes          String?
   emergencyContactName  String?
   emergencyContactPhone String?
-  qrCode                String     @unique
-  joinDate              DateTime   @default(now())
+  qrCode                String    @unique
+  joinDate              DateTime  @default(now())
 
-  memberships           MemberMembership[]
+  memberships MemberMembership[]
+
+  @@index([userId])
 }
 
 model MembershipPlan {
-  id             String             @id @default(uuid())
+  id             String   @id @default(uuid())
   name           String
   description    String?
   durationMonths Int
   price          Float
-  type           String             @default("MONTHLY") // MONTHLY, QUARTERLY, SEMIANNUAL, ANNUAL, STUDENT, VIP, PERSONAL_TRAINING
-  features       String             // Store comma-separated list of features
-  isPopular      Boolean            @default(false)
-  isActive       Boolean            @default(true)
-  createdAt      DateTime           @default(now())
+  type           PlanType @default(MONTHLY)
+  features       String   // Store comma-separated list of features
+  isPopular      Boolean  @default(false)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
 
   memberMemberships MemberMembership[]
 }
 
 model MemberMembership {
-  id             String           @id @default(uuid())
-  memberId       String
-  member         MemberProfile    @relation(fields: [memberId], references: [id], onDelete: Cascade)
-  planId         String
-  plan           MembershipPlan   @relation(fields: [planId], references: [id])
-  startDate      DateTime         @default(now())
-  endDate        DateTime
-  status         String           @default("ACTIVE") // ACTIVE, FROZEN, CANCELLED, EXPIRED
-  autoRenew      Boolean          @default(true)
-  pricePaid      Float
-  createdAt      DateTime         @default(now())
+  id         String           @id @default(uuid())
+  memberId   String
+  member     MemberProfile    @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  planId     String
+  plan       MembershipPlan   @relation(fields: [planId], references: [id])
+  startDate  DateTime         @default(now())
+  endDate    DateTime
+  status     MembershipStatus @default(ACTIVE)
+  autoRenew  Boolean          @default(true)
+  pricePaid  Float
+  createdAt  DateTime         @default(now())
 
-  payments       Payment[]
+  payments Payment[]
+
+  @@index([memberId])
+  @@index([status])
 }
 
 model Attendance {
-  id            String        @id @default(uuid())
-  userId        String
-  user          User          @relation("MemberAttendance", fields: [userId], references: [id], onDelete: Cascade)
-  checkInTime   DateTime      @default(now())
-  checkOutTime  DateTime?
-  method        String        @default("QR_CODE") // QR_CODE, BARCODE, MANUAL, RECEPTIONIST
-  verifiedBy    String?
+  id           String        @id @default(uuid())
+  userId       String
+  user         User          @relation("MemberAttendance", fields: [userId], references: [id], onDelete: Cascade)
+  checkInTime  DateTime      @default(now())
+  checkOutTime DateTime?
+  method       CheckInMethod @default(QR_CODE)
+  verifiedBy   String?
+
+  @@index([userId])
+  @@index([checkInTime])
 }
 
 model Exercise {
@@ -117,11 +187,15 @@ model WorkoutPlan {
   exercisesJson String
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  @@index([assignedToId])
+  @@index([createdById])
 }
 
 model NutritionPlan {
   id            String   @id @default(uuid())
   title         String
+  dietType      String?  @default("High Protein")
   assignedToId  String?
   assignedTo    User?    @relation("AssignedNutrition", fields: [assignedToId], references: [id])
   createdById   String
@@ -133,6 +207,9 @@ model NutritionPlan {
   mealsJson     String
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  @@index([assignedToId])
+  @@index([createdById])
 }
 
 model Payment {
@@ -142,25 +219,31 @@ model Payment {
   membershipId  String?
   membership    MemberMembership? @relation(fields: [membershipId], references: [id])
   amount        Float
-  paymentMethod String            @default("CARD") // CASH, CARD, RECURRING, ONLINE
-  status        String            @default("COMPLETED") // COMPLETED, PENDING, REFUNDED, FAILED
+  paymentMethod PaymentMethod     @default(CARD)
+  status        PaymentStatus     @default(COMPLETED)
   invoiceNumber String            @unique
   description   String?
   date          DateTime          @default(now())
+
+  @@index([userId])
+  @@index([date])
+  @@index([status])
 }
 
 model Product {
-  id            String   @id @default(uuid())
+  id            String          @id @default(uuid())
   name          String
-  category      String   @default("SUPPLEMENT") // SUPPLEMENT, DRINK, MERCHANDISE, EQUIPMENT
-  sku           String   @unique
+  category      ProductCategory @default(SUPPLEMENT)
+  sku           String          @unique
   price         Float
   costPrice     Float
-  stockQuantity Int      @default(0)
-  minStockLevel Int      @default(5)
+  stockQuantity Int             @default(0)
+  minStockLevel Int             @default(5)
   supplier      String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([category])
 }
 
 model Notification {
@@ -185,4 +268,7 @@ model AuditLog {
   details   String
   ipAddress String?  @default("127.0.0.1")
   createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
 }
