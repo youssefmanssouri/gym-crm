@@ -91,12 +91,18 @@ export async function GET() {
       total: formattedMembers.length,
     });
   } catch (error: unknown) {
-    const message = error instanceof Error && error.message === 'UNAUTHORIZED'
-      ? 'Unauthorized'
-      : 'Authentication required';
+    if (error instanceof Error) {
+      if (error.message === 'UNAUTHORIZED') {
+        return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+      }
+      if (error.message === 'FORBIDDEN') {
+        return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
+      }
+    }
+    console.error('Error fetching members:', error);
     return NextResponse.json(
-      { success: false, error: message },
-      { status: 401 }
+      { success: false, error: 'Failed to fetch members' },
+      { status: 500 }
     );
   }
 }
