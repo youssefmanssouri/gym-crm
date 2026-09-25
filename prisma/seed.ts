@@ -74,19 +74,23 @@ async function main() {
   ];
 
   for (const u of usersToSeed) {
-    await prisma.user.upsert({
-      where: { email: u.email },
-      update: {
-        name: u.name,
-        passwordHash: u.passwordHash,
-        role: u.role,
-        status: u.status,
-        phone: u.phone,
-        avatar: u.avatar,
-        bio: u.bio,
-      },
-      create: u,
-    });
+    const existing = await prisma.user.findUnique({ where: { email: u.email } });
+    if (!existing) {
+      await prisma.user.create({ data: u });
+    } else {
+      // Preserve existing passwordHash; do NOT overwrite credentials
+      await prisma.user.update({
+        where: { email: u.email },
+        data: {
+          name: u.name,
+          role: u.role,
+          status: u.status,
+          phone: u.phone,
+          avatar: u.avatar,
+          bio: u.bio,
+        },
+      });
+    }
   }
 
   // 2. Membership Plans
