@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { UserCheck, Shield, Lock, Eye, CheckCircle2, Clock } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
@@ -51,9 +52,11 @@ export const StaffModule: React.FC = () => {
             <Card key={staff.id} glow className="p-5 flex flex-col justify-between space-y-4">
               <div>
                 <div className="flex items-center gap-3">
-                  <img
+                  <Image
                     src={staff.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80'}
                     alt={staff.name}
+                    width={48}
+                    height={48}
                     className="w-12 h-12 rounded-2xl object-cover border border-zinc-700"
                   />
                   <div>
@@ -79,7 +82,7 @@ export const StaffModule: React.FC = () => {
         <Card className="space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
             <h3 className="text-sm font-bold text-white uppercase tracking-wider">Security & Operational Audit Trail</h3>
-            <Badge variant="cyan">REALTIME LOGGING</Badge>
+            <Badge variant="cyan">SYSTEM AUDIT TRAIL</Badge>
           </div>
 
           <div className="overflow-x-auto">

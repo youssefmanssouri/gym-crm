@@ -52,7 +52,7 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
       const res = await apiGetAnalytics();
       setData(res);
     } catch (err: any) {
-      setError(err.message || 'Failed to fetch real-time analytics from PostgreSQL database.');
+      setError(err.message || 'Failed to fetch facility analytics. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -74,7 +74,7 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
           </div>
           <h2 className="text-2xl font-black tracking-tight text-white">Apex Fitness Overview</h2>
           <p className="text-xs text-zinc-400 mt-1 max-w-xl">
-            Real-time gym performance, active member check-ins, financial metrics, and AI predictive insights from PostgreSQL.
+            Facility performance benchmarks, active member check-ins, financial metrics, and operational insights.
           </p>
         </div>
 
@@ -129,10 +129,10 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
             <div className="mt-3 flex items-baseline gap-2">
               <span className="text-3xl font-black text-white tracking-tight">{data.kpis.activeMembers}</span>
               <span className="text-xs text-emerald-400 flex items-center font-semibold">
-                <ArrowUpRight className="w-3.5 h-3.5" /> Live DB
+                <ArrowUpRight className="w-3.5 h-3.5" /> Active
               </span>
             </div>
-            <p className="text-[11px] text-zinc-500 mt-1">Out of {data.kpis.totalMembers} registered accounts</p>
+            <p className="text-[11px] text-zinc-500 mt-1">Out of {data.kpis.totalMembers} registered accounts • Club benchmark</p>
           </Card>
 
           {/* Monthly Revenue */}
@@ -149,7 +149,7 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
                 <ArrowUpRight className="w-3.5 h-3.5" /> MTD
               </span>
             </div>
-            <p className="text-[11px] text-zinc-500 mt-1">${data.kpis.weeklyRevenue.toLocaleString()} earned this week</p>
+            <p className="text-[11px] text-zinc-500 mt-1">${data.kpis.weeklyRevenue.toLocaleString()} earned this week • Club benchmark</p>
           </Card>
 
           {/* Today's Check-ins */}
@@ -164,7 +164,7 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
               <span className="text-3xl font-black text-white tracking-tight">{data.kpis.todayAttendance}</span>
               <span className="text-xs text-zinc-400 flex items-center font-medium">Logged Today</span>
             </div>
-            <p className="text-[11px] text-zinc-500 mt-1">Real-time gate and QR access</p>
+            <p className="text-[11px] text-zinc-500 mt-1">Access terminal volume • Club benchmark</p>
           </Card>
 
           {/* Retention & Churn */}
@@ -194,7 +194,7 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h3 className="text-base font-bold text-white tracking-tight">Revenue Trajectory (Last 6 Months)</h3>
-                <p className="text-xs text-zinc-400">Monthly recurring memberships vs POS product sales from PostgreSQL</p>
+                <p className="text-xs text-zinc-400">Monthly recurring memberships vs POS retail sales</p>
               </div>
               <div className="flex items-center gap-4 text-xs font-medium">
                 <div className="flex items-center gap-1.5">
@@ -211,7 +211,7 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
             <div className="h-72 w-full">
               {data.charts.revenue.length === 0 ? (
                 <div className="h-full flex items-center justify-center text-xs text-zinc-500">
-                  No payment data available in database yet.
+                  No payment transactions recorded yet.
                 </div>
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
@@ -281,7 +281,7 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
               </div>
               <div>
                 <h4 className="text-sm font-bold text-white">APEX Gemini AI Insights</h4>
-                <span className="text-[10px] text-cyan-400 font-semibold uppercase">Authoritative DB Analytics</span>
+                <span className="text-[10px] text-cyan-400 font-semibold uppercase">Facility Intelligence</span>
               </div>
             </div>
 
@@ -315,7 +315,7 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-base font-bold text-white tracking-tight">Recent Check-in Terminal Activity</h3>
-                <p className="text-xs text-zinc-400">Real-time scan logs from QR & Front Desk database records</p>
+                <p className="text-xs text-zinc-400">Scan logs from QR & Front Desk access records</p>
               </div>
               <Button variant="ghost" size="sm" onClick={() => onNavigate('attendance')}>
                 View Full Logs <ChevronRight className="w-3.5 h-3.5" />

@@ -152,7 +152,7 @@ export const WorkoutBuilderModule: React.FC = () => {
       setActivePlan(newPlan);
       setFeedback({
         type: 'success',
-        message: 'AI split generated! Review exercises below and click "Save Plan" to persist to PostgreSQL.',
+        message: 'AI split generated! Review exercises below and click "Save Plan" to save to your workout library.',
       });
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : 'AI Workout error';
@@ -186,7 +186,7 @@ export const WorkoutBuilderModule: React.FC = () => {
 
       setWorkouts((prev) => [saved, ...prev.filter((w) => w.id !== saved.id)]);
       setActivePlan(saved);
-      setFeedback({ type: 'success', message: `Workout plan "${saved.title}" saved to PostgreSQL!` });
+      setFeedback({ type: 'success', message: `Workout plan "${saved.title}" saved to library!` });
     } catch (err: any) {
       setFeedback({ type: 'error', message: err.message || 'Failed to save workout plan' });
     } finally {
@@ -285,7 +285,7 @@ export const WorkoutBuilderModule: React.FC = () => {
         <Card className="space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-white uppercase tracking-wider">Workout Library ({workouts.length})</h3>
-            <span className="text-[10px] text-zinc-500">PostgreSQL</span>
+            <span className="text-[10px] text-zinc-500">Library</span>
           </div>
 
           {isLoading ? (
@@ -396,11 +396,15 @@ export const WorkoutBuilderModule: React.FC = () => {
           {/* Add Exercise Row Form */}
           <div className="p-4 rounded-2xl bg-zinc-950 border border-zinc-800/80 space-y-3">
             <span className="text-xs font-bold text-white uppercase tracking-wider block">+ Add Exercise to Plan</span>
-            <div className="grid grid-cols-1 sm:grid-cols-5 gap-2">
-              <Input placeholder="Exercise name..." value={newExName} onChange={(e) => setNewExName(e.target.value)} className="sm:col-span-2 text-xs" />
+            <div className="grid grid-cols-2 sm:grid-cols-6 gap-2">
+              <Input placeholder="Exercise name..." value={newExName} onChange={(e) => setNewExName(e.target.value)} className="col-span-2 text-xs" />
               <Input placeholder="Muscle group..." value={newExMuscle} onChange={(e) => setNewExMuscle(e.target.value)} className="text-xs" />
               <Input placeholder="Sets (e.g. 4)" value={newExSets} onChange={(e) => setNewExSets(e.target.value)} className="text-xs" />
-              <Button variant="secondary" size="sm" onClick={handleAddExercise}>Add</Button>
+              <Input placeholder="Reps (e.g. 8-12)" value={newExReps} onChange={(e) => setNewExReps(e.target.value)} className="text-xs" />
+              <div className="flex gap-2">
+                <Input placeholder="Rest (s)" value={newExRest} onChange={(e) => setNewExRest(e.target.value)} className="text-xs w-full" />
+                <Button variant="secondary" size="sm" onClick={handleAddExercise}>Add</Button>
+              </div>
             </div>
           </div>
         </Card>

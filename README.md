@@ -1,6 +1,6 @@
-﻿# Gym CRM — Fitness Facility & Member Operations Platform
+# Gym CRM — Fitness Facility & Member Operations Platform
 
-> **Operational Gym Management CRM** designed for front-desk check-in verification, membership renewal tracking, class capacity planning, and recurring revenue telemetry.
+> **Modern Fitness Facility Management System** featuring member lifecycle management, QR attendance verification, workout programming, nutrition protocol planning, inventory point-of-sale (POS), and operational telemetry.
 >
 > Designed & Developed by **[Youssef Manssouri](https://www.youssefmanssouri.site)**.
 
@@ -17,60 +17,59 @@
 
 - **Live Application Demo**: [https://gym-crm-gules.vercel.app](https://gym-crm-gules.vercel.app)
 - **Engineering Case Study**: [https://www.youssefmanssouri.site/projects/gym-crm](https://www.youssefmanssouri.site/projects/gym-crm)
-- *Note: The live demo operates in a protected read-only environment with synthetic data to protect operational integrity.*
+- *Demo Credentials Note: Quick-fill buttons are provided on the login page for Admin, Manager, Trainer, Receptionist, and Member roles.*
 
 ---
 
 ## 📋 Overview
 
-Fitness facilities frequently face front-desk check-in bottlenecks, unmonitored expired memberships, and disjointed group class schedules. When member data, class rosters, and billing records live in separate places, front-desk staff lose time and facility management lacks immediate visibility into facility velocity.
+Fitness facilities require coordinated front-desk attendance verification, member subscription tracking, trainer workout allocation, and financial ledgering. When member data, equipment inventory, and billing records live in disconnected silos, operations slow down and management loses operational visibility.
 
-**Gym CRM** centralizes member verification, subscription renewal tracking, trainer class allocation, and facility revenue into a single, high-contrast operational dashboard.
-
----
-
-## 🚀 Core Capabilities
-
-1. **Reception Check-In Terminal**: Rapid member lookups by name or ID with instant visual verification of membership validity.
-2. **Member Directory & Subscription Tracker**: Complete member registry with status filters (Active, Expired, Suspended), emergency contacts, and renewal history.
-3. **Class Scheduling & Capacity Matrix**: Group workout and class planner with trainer assignments, time slots, and attendee capacity limits.
-4. **Revenue & MRR Telemetry**: Monthly recurring revenue summaries, membership tier distribution, and renewal forecasts.
-5. **Role-Based Operations**: Tailored permissions ensuring front-desk staff, trainers, and facility managers access appropriate tools.
+**Apex Gym CRM** centralizes facility operations into a high-contrast, responsive dashboard engineered with Next.js 14 App Router, TypeScript, and Prisma ORM.
 
 ---
 
-## 🏗️ Architecture
+## 🚀 Core Implemented Modules
 
-`	ext
-Browser Client (React / Tailwind CSS)
+1. **Operations Dashboard**: Facility benchmarks, monthly & weekly revenue indicators, peak utilization velocity charts, and 6-month historical trends.
+2. **Member CRM**: Searchable member directory with status filters (`ACTIVE`, `INACTIVE`, `EXPIRED`, `FROZEN`), weight goal tracking, and digital QR passes.
+3. **Membership Plans & Assignment**: Configurable subscription tiers, promo discount engine, and direct member plan assignment workflow.
+4. **Attendance Access Terminal**: Front-desk QR code verification terminal with real-time pass validation and access logs.
+5. **Trainer Hub & Workout Builder**: Multi-exercise routine builder (sets, reps, rest intervals) with Google Gemini AI routine generation and smart fallbacks.
+6. **Nutrition Protocol Builder**: Macro-balanced dietary planner (protein, carbohydrates, fats) matched to target caloric requirements with meal scheduling.
+7. **Payments & Billing**: Transaction ledger with invoice numbers (`INV-YYYY-XXXXX`), payment methods, printable receipts, and dynamic aggregates.
+8. **Inventory & Point-of-Sale (POS)**: Supplement and merchandise catalog, stock level monitoring, low-stock warnings, and transactional POS checkout.
+9. **Staff Directory & Security Audit Trail**: Staff management across 5 roles (`ADMIN`, `MANAGER`, `TRAINER`, `RECEPTIONIST`, `MEMBER`) and system audit logs.
+10. **AI Intelligence Suite**: Conversational fitness assistant, predictive retention modeling, and strategic revenue recommendations.
+11. **Reports & Analytics**: One-click sanitized CSV exports for financial ledgers, member directories, and facility attendance logs.
+12. **System Settings**: Facility branding, operating hours, and sales tax rate configuration.
+
+---
+
+## 🏗️ Architecture & Fault Tolerance
+
+```text
+Browser Client (React 18 / Tailwind CSS / Framer Motion)
                │
                ▼
-   Next.js App Router (Operational Views & Server Actions)
+   Next.js 14 App Router (Dynamic Routes & Server Actions)
                │
                ▼
-   Prisma ORM (Data Access Layer & Entity Relations)
-               │
-               ▼
-   PostgreSQL / SQLite Database
-`
+   Prisma ORM & Resilient Dual-Mode Data Layer
+         ┌─────┴────────────────┐
+         ▼                      ▼
+  PostgreSQL Database    Deterministic Demo Fallback
+  (When Connected)       (Zero-Downtime Offline Resilience)
+```
 
 | Technology | Functional Purpose |
 |------------|-------------------|
-| **Next.js** | Front-desk operations portal with responsive views and fast transitions |
-| **TypeScript** | Strict data typing for member profiles, attendance logs, and class rosters |
-| **PostgreSQL & Prisma ORM** | Structured member records, plan tiers, and booking capacity models |
-| **Tailwind CSS** | High-contrast front-desk terminal UI and visual status indicators |
-
----
-
-## 📦 What Was Built (Build Scope)
-
-- Reception desk attendance check-in terminal with instant search
-- Member directory with Active, Expired, and Frozen subscription badges
-- Group class scheduling matrix with trainer allocations & attendee capacity
-- Monthly recurring revenue (MRR) summaries & membership tier breakdown
-- Role-based operations interface designed for front-desk and management staff
-- Fully responsive interface optimized across mobile, tablet, and desktop
+| **Next.js 14 (App Router)** | Code-split modular workspace with dynamic imports and fast navigation |
+| **TypeScript (Strict)** | Strict end-to-end typing for member profiles, attendance logs, and financial records |
+| **Prisma ORM & PostgreSQL** | Entity relations, schema migrations, and structured data models |
+| **Google Gemini API** | AI workout split generation, nutrition planning, and strategic recommendations |
+| **Tailwind CSS** | Dark-mode terminal design system with responsive mobile drawer |
+| **Zod** | Runtime schema validation protecting all 20 API mutation endpoints |
 
 ---
 
@@ -78,35 +77,51 @@ Browser Client (React / Tailwind CSS)
 
 ### 1. Clone & Install
 
-`ash
+```bash
 git clone https://github.com/youssefmanssouri/gym-crm.git
 cd gym-crm
 npm install
-`
+```
 
 ### 2. Configure Environment
 
-Create a .env file based on .env.example:
+Create a `.env` file based on `.env.example`:
 
-`env
-DATABASE_URL="file:./dev.db"
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
-`
+```env
+DATABASE_URL="postgresql://gym_user:gym_password@localhost:5432/gym_crm?schema=public"
+NEXTAUTH_SECRET="your-development-session-secret"
+GEMINI_API_KEY="" # Optional: Application uses deterministic heuristics if omitted
+```
 
-### 3. Initialize Database & Seed
+*Note: A live PostgreSQL database is optional for local UI and demo exploration. The application includes a resilient demo fallback mode.*
 
-`ash
-npx prisma db push
-npm run db:seed
-`
+### 3. Initialize Database (Optional)
+
+```bash
+npm run prisma:generate
+npm run prisma:push
+npm run prisma:seed
+```
 
 ### 4. Run Development Server
 
-`ash
+```bash
 npm run dev
-`
+```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+---
+
+## 🧪 Testing
+
+The repository includes comprehensive automated test suites covering authentication, CRUD persistence, RBAC permissions, and demo coherence:
+
+```bash
+node scratch/test-phase3b.js        # 45 Core CRM & Persistence tests
+node scratch/test-phase3d.js        # 45 Workout, Nutrition, AI & IDOR tests
+node scratch/test-demo-coherence.js # Demo fallback & checkout coherence
+```
 
 ---
 

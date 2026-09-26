@@ -7,14 +7,28 @@ import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import { Modal } from '../ui/Modal';
 import { Input } from '../ui/Input';
-import { MembershipPlan } from '@/lib/types';
-import { MOCK_MEMBERSHIP_PLANS } from '@/lib/mock-data';
+import { MembershipPlan, MemberProfile } from '@/lib/types';
+import { MOCK_MEMBERSHIP_PLANS, MOCK_MEMBERS } from '@/lib/mock-data';
+import { apiGetMembers } from '@/lib/api-client';
 
 export const MembershipsModule: React.FC = () => {
   const [plans, setPlans] = useState<MembershipPlan[]>(MOCK_MEMBERSHIP_PLANS);
   const [isAddPlanModalOpen, setIsAddPlanModalOpen] = useState(false);
   const [couponCode, setCouponCode] = useState('');
   const [discountApplied, setDiscountApplied] = useState<number | null>(null);
+  const [assigningPlan, setAssigningPlan] = useState<MembershipPlan | null>(null);
+  const [members, setMembers] = useState<MemberProfile[]>(MOCK_MEMBERS);
+  const [selectedMemberId, setSelectedMemberId] = useState<string>(MOCK_MEMBERS[0]?.id || '');
+  const [assignSuccess, setAssignSuccess] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    apiGetMembers().then((res) => {
+      if (res && res.length > 0) {
+        setMembers(res);
+        setSelectedMemberId(res[0].id);
+      }
+    }).catch(() => {});
+  }, []);
 
   // New Plan Form State
   const [planName, setPlanName] = useState('');
@@ -97,6 +111,13 @@ export const MembershipsModule: React.FC = () => {
         </div>
       )}
 
+      {assignSuccess && (
+        <div className="p-3 bg-cyan-500/10 border border-cyan-500/30 rounded-2xl text-xs text-cyan-400 font-semibold flex items-center justify-between">
+          <span>✓ {assignSuccess}</span>
+          <button onClick={() => setAssignSuccess(null)} className="text-zinc-400 hover:text-white">Dismiss</button>
+        </div>
+      )}
+
       {/* Plans Tier Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {plans.map((plan) => {
@@ -144,7 +165,12 @@ export const MembershipsModule: React.FC = () => {
               </div>
 
               <div className="mt-6">
-                <Button variant={plan.isPopular ? 'glow' : 'outline'} size="sm" className="w-full">
+                <Button
+                  variant={plan.isPopular ? 'glow' : 'outline'}
+                  size="sm"
+                  className="w-full"
+                  onClick={() => setAssigningPlan(plan)}
+                >
                   Assign Membership
                 </Button>
               </div>
@@ -152,6 +178,93 @@ export const MembershipsModule: React.FC = () => {
           );
         })}
       </div>
+
+      {/* Assign Membership Modal */}
+      {assigningPlan && (
+        <Modal
+          isOpen={!!assigningPlan}
+          onClose={() => setAssigningPlan(null)}
+          title={`Assign Plan: ${assigningPlan.name}`}
+          subtitle={`Tier Fee: $${assigningPlan.price} / ${assigningPlan.durationMonths} month(s)`}
+        >
+          <div className="space-y-4">
+            <div>
+              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider block mb-1.5">
+                Select Member Account
+              </label>
+              <select
+                value={selectedMemberId}
+                onChange={(e) => setSelectedMemberId(e.target.value)}
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-2.5 text-sm text-zinc-100 focus:outline-none focus:border-cyan-500"
+              >
+                {members.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.user?.name} ({m.user?.email}) — Current: {m.membership?.plan?.name || 'Standard'}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="p-3 bg-zinc-950 border border-zinc-800 rounded-xl text-xs space-y-1.5">
+              <div className="flex justify-between text-zinc-400">
+                <span>Selected Tier:</span>
+                <span className="font-semibold text-white">{assigningPlan.name}</span>
+              </div>
+              <div className="flex justify-between text-zinc-400">
+                <span>Effective Price:</span>
+                <span className="font-mono text-cyan-400 font-bold">${assigningPlan.price}</span>
+              </div>
+              <div className="flex justify-between text-zinc-400">
+                <span>Included Features:</span>
+                <span className="text-zinc-300 truncate max-w-[200px]">{assigningPlan.features.slice(0, 2).join(', ')}...</span>
+              </div>
+            </div>
+
+            <div className="pt-4 flex items-center justify-end gap-3 border-t border-zinc-800">
+              <Button variant="ghost" type="button" onClick={() => setAssigningPlan(null)}>
+                Cancel
+              </Button>
+              <Button
+                variant="glow"
+                type="button"
+                onClick={() => {
+                  const targetMember = members.find((m) => m.id === selectedMemberId);
+                  const memberName = targetMember?.user?.name || 'Member';
+
+                  const now = new Date();
+                  const endDate = new Date(now.getTime() + assigningPlan.durationMonths * 30 * 24 * 60 * 60 * 1000);
+
+                  setMembers((prevMembers) =>
+                    prevMembers.map((m) => {
+                      if (m.id !== selectedMemberId) return m;
+                      return {
+                        ...m,
+                        membership: {
+                          id: `m-sub-${Date.now()}`,
+                          memberId: m.id,
+                          planId: assigningPlan.id,
+                          plan: assigningPlan,
+                          startDate: now.toISOString().slice(0, 10),
+                          endDate: endDate.toISOString().slice(0, 10),
+                          status: 'ACTIVE',
+                          autoRenew: true,
+                          pricePaid: assigningPlan.price,
+                        },
+                      };
+                    })
+                  );
+
+                  setAssignSuccess(`Assigned "${assigningPlan.name}" to ${memberName} successfully!`);
+                  setAssigningPlan(null);
+                  setTimeout(() => setAssignSuccess(null), 5000);
+                }}
+              >
+                Confirm Plan Assignment
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
 
       {/* Add Plan Modal */}
       <Modal isOpen={isAddPlanModalOpen} onClose={() => setIsAddPlanModalOpen(false)} title="Create Membership Plan Tier" subtitle="Add new pricing options to your gym CRM catalog">

@@ -12,13 +12,30 @@ export const AiSuiteModule: React.FC = () => {
   const [messages, setMessages] = useState<Array<{ sender: 'USER' | 'AI'; text: string }>>([
     {
       sender: 'AI',
-      text: 'Hello! I am APEX AI, your master fitness & gym intelligence assistant. Ask me anything about workout programming, diet macros, member retention strategies, or revenue optimization!',
+      text: 'Hello! I am APEX AI, your fitness & gym intelligence assistant. Ask me anything about workout programming, diet macros, member retention strategies, or revenue optimization!',
     },
   ]);
   const [inputMsg, setInputMsg] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [aiReport, setAiReport] = useState<string | null>(null);
   const [isReportLoading, setIsReportLoading] = useState(false);
+  const [isLiveAI, setIsLiveAI] = useState<boolean>(false);
+
+  React.useEffect(() => {
+    // Probe initial AI engine connectivity mode
+    fetch('/api/ai/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: 'status' }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (typeof data.isLiveAI === 'boolean') {
+          setIsLiveAI(data.isLiveAI);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,6 +48,9 @@ export const AiSuiteModule: React.FC = () => {
 
     try {
       const data = await apiChatWithAI(userText);
+      if (typeof data.isLiveAI === 'boolean') {
+        setIsLiveAI(data.isLiveAI);
+      }
       setMessages((prev) => [...prev, { sender: 'AI', text: data.response || 'I am processing your query.' }]);
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : 'AI chat request failed';
@@ -44,6 +64,9 @@ export const AiSuiteModule: React.FC = () => {
     setIsReportLoading(true);
     try {
       const data = await apiGenerateBusinessInsights();
+      if (typeof data.isLiveAI === 'boolean') {
+        setIsLiveAI(data.isLiveAI);
+      }
       setAiReport(data.report);
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : 'Failed to generate insights';
@@ -59,9 +82,9 @@ export const AiSuiteModule: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
-            APEX Gemini AI Power Suite <Sparkles className="w-5 h-5 text-cyan-400" />
+            APEX AI Intelligence Suite <Sparkles className="w-5 h-5 text-cyan-400" />
           </h2>
-          <p className="text-xs text-zinc-400 mt-1">AI Fitness Chatbot, Predictive Churn Modeling, and Strategic Revenue Insights.</p>
+          <p className="text-xs text-zinc-400 mt-1">AI Fitness Assistant, Predictive Churn Modeling, and Strategic Revenue Insights.</p>
         </div>
       </div>
 
@@ -74,11 +97,15 @@ export const AiSuiteModule: React.FC = () => {
                 <Bot className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-white">APEX Fitness Assistant Chatbot</h3>
-                <p className="text-[10px] text-zinc-500">Powered by Google Gemini AI</p>
+                <h3 className="text-sm font-bold text-white">APEX Fitness Assistant</h3>
+                <p className="text-[10px] text-zinc-500">
+                  {isLiveAI ? 'Powered by Google Gemini AI' : 'Intelligent Heuristics & Demo Guidance'}
+                </p>
               </div>
             </div>
-            <Badge variant="cyan">ONLINE</Badge>
+            <Badge variant={isLiveAI ? 'cyan' : 'default'}>
+              {isLiveAI ? 'GEMINI LIVE' : 'AI ASSISTANT (DEMO MODE)'}
+            </Badge>
           </div>
 
           {/* Chat Messages */}
@@ -127,7 +154,7 @@ export const AiSuiteModule: React.FC = () => {
           </div>
 
           <p className="text-xs text-zinc-400">
-            Click below to execute Gemini AI strategic revenue and churn risk analysis over current gym KPIs.
+            Click below to execute strategic revenue and churn risk analysis over current gym KPIs.
           </p>
 
           <Button

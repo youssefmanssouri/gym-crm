@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import {
   Users,
   Search,
@@ -20,6 +21,7 @@ import {
   Flame,
   Activity,
   Heart,
+  Loader2,
 } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
@@ -198,16 +200,34 @@ export const MembersModule: React.FC<MembersModuleProps> = ({ initialSearch = ''
       </Card>
 
       {/* Members Grid / Datagrid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredMembers.map((member) => (
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center py-16 text-zinc-500 text-xs">
+          <Loader2 className="w-8 h-8 animate-spin text-cyan-400 mb-2" />
+          <span>Loading member accounts...</span>
+        </div>
+      ) : filteredMembers.length === 0 ? (
+        <Card className="py-16 text-center">
+          <Users className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
+          <h4 className="text-sm font-semibold text-zinc-300">No members found</h4>
+          <p className="text-xs text-zinc-500 mt-1 max-w-sm mx-auto">
+            {search || statusFilter !== 'ALL'
+              ? 'Try clearing your search query or status filter to see all registered members.'
+              : 'Click "+ Register New Member" to add a member account.'}
+          </p>
+        </Card>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredMembers.map((member) => (
           <Card key={member.id} glow className="flex flex-col justify-between p-5 relative group">
             <div>
               {/* Member Header */}
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <img
+                  <Image
                     src={member.user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80'}
                     alt={member.user.name}
+                    width={48}
+                    height={48}
                     className="w-12 h-12 rounded-2xl object-cover border border-zinc-700"
                   />
                   <div>
@@ -259,7 +279,8 @@ export const MembersModule: React.FC<MembersModuleProps> = ({ initialSearch = ''
             </div>
           </Card>
         ))}
-      </div>
+        </div>
+      )}
 
       {/* Member Profile Drawer / Modal */}
       {selectedMember && (
@@ -273,9 +294,11 @@ export const MembersModule: React.FC<MembersModuleProps> = ({ initialSearch = ''
           <div className="space-y-6">
             {/* Header Bio */}
             <div className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-2xl bg-zinc-950 border border-zinc-800">
-              <img
+              <Image
                 src={selectedMember.user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80'}
                 alt={selectedMember.user.name}
+                width={80}
+                height={80}
                 className="w-20 h-20 rounded-2xl object-cover border-2 border-cyan-500/40"
               />
               <div className="flex-1 text-center sm:text-left space-y-1">

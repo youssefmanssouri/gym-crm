@@ -170,7 +170,7 @@ export const InventoryModule: React.FC = () => {
       {isLoading ? (
         <div className="flex flex-col items-center justify-center py-16 text-zinc-500 text-xs">
           <Loader2 className="w-8 h-8 animate-spin text-cyan-400 mb-2" />
-          <span>Loading inventory catalog from database...</span>
+          <span>Loading inventory catalog...</span>
         </div>
       ) : filteredProducts.length === 0 ? (
         <Card className="py-16 text-center">

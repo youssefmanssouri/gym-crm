@@ -30,7 +30,7 @@ export const ReportsModule: React.FC = () => {
       setMembers(memRes);
       setAttendance(attRes);
     } catch (err: any) {
-      setError(err.message || 'Failed to load report data from PostgreSQL database.');
+      setError(err.message || 'Failed to load report data.');
     } finally {
       setIsLoading(false);
     }
@@ -42,7 +42,7 @@ export const ReportsModule: React.FC = () => {
 
   const handleExport = (title: string, data: object[]) => {
     if (data.length === 0) {
-      setError(`Cannot export "${title}": No records found in the database.`);
+      setError(`Cannot export "${title}": No records found.`);
       return;
     }
     setError(null);
@@ -54,7 +54,7 @@ export const ReportsModule: React.FC = () => {
   const reportsList = [
     {
       title: 'Monthly Revenue & Financial Ledger Report',
-      description: 'Authoritative transaction ledger with payment methods, status, and invoice IDs from PostgreSQL.',
+      description: 'Transaction ledger with payment methods, status, and invoice IDs.',
       count: payments.length,
       data: payments.map((p) => ({
         InvoiceNumber: p.invoiceNumber,
@@ -109,7 +109,7 @@ export const ReportsModule: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-extrabold text-white tracking-tight">Reports & Business Analytics</h2>
-          <p className="text-xs text-zinc-400 mt-1">Exportable CSV financial ledgers, member rosters, and attendance records from PostgreSQL.</p>
+          <p className="text-xs text-zinc-400 mt-1">Exportable CSV financial ledgers, member rosters, and attendance records.</p>
         </div>
         <div className="flex items-center gap-2">
           <Button

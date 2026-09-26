@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { QrCode, Search, CheckCircle2, AlertCircle, Clock, ShieldCheck, UserCheck, Sparkles, RefreshCw, Loader2 } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
@@ -72,7 +73,7 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ onScanComple
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-extrabold text-white tracking-tight">Attendance & QR Check-in Terminal</h2>
-          <p className="text-xs text-zinc-400 mt-1">Real-time facility access scanner and receptionist check-in console.</p>
+          <p className="text-xs text-zinc-400 mt-1">Facility access scanner terminal and receptionist check-in console.</p>
         </div>
         <Button variant="outline" size="sm" icon={<RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />} onClick={loadAttendance}>
           Refresh Log
@@ -197,9 +198,11 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ onScanComple
                   {attendanceList.map((item) => (
                     <tr key={item.id} className="hover:bg-zinc-800/40 transition-colors">
                       <td className="py-3 px-2 flex items-center gap-2.5">
-                        <img
+                        <Image
                           src={item.userAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80'}
                           alt={item.userName}
+                          width={28}
+                          height={28}
                           className="w-7 h-7 rounded-full object-cover border border-zinc-700"
                         />
                         <span className="font-semibold text-white">{item.userName}</span>

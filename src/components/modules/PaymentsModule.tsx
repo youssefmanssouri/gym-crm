@@ -172,7 +172,14 @@ export const PaymentsModule: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-800/60">
-              {filteredPayments.map((p) => (
+              {filteredPayments.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-zinc-500 italic">
+                    No payment records found matching your search.
+                  </td>
+                </tr>
+              ) : (
+                filteredPayments.map((p) => (
                 <tr key={p.id} className="hover:bg-zinc-800/40 transition-colors">
                   <td className="py-3 px-2 font-mono font-bold text-cyan-400">{p.invoiceNumber}</td>
                   <td className="py-3 px-2">
@@ -191,7 +198,7 @@ export const PaymentsModule: React.FC = () => {
                     </Button>
                   </td>
                 </tr>
-              ))}
+              )))}
             </tbody>
           </table>
         </div>

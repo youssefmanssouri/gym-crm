@@ -377,37 +377,37 @@ export const MOCK_NUTRITION_PLANS: NutritionPlan[] = [
     assignedToName: 'David Chen',
     createdBy: 'Marcus Stone',
     dailyCalories: 2800,
-    proteinGrams: 200,
+    proteinGrams: 210,
     carbsGrams: 310,
-    fatGrams: 75,
+    fatGrams: 76,
     mealCategories: [
       {
         title: 'Breakfast',
         time: '07:30 AM',
         meals: [
-          { name: 'Oatmeal with Whey Protein & Blueberries', portion: '1.5 cups', calories: 520, protein: 40, carbs: 65, fat: 10 },
-          { name: 'Whole Eggs & Egg Whites Scramble', portion: '2 whole + 3 whites', calories: 240, protein: 28, carbs: 2, fat: 12 },
+          { name: 'Oatmeal with Whey Protein, Banana & Blueberries', portion: '2 cups oatmeal, 1 scoop whey, fruit', calories: 620, protein: 42, carbs: 96, fat: 8 },
+          { name: 'Whole Eggs & Egg Whites Scramble', portion: '2 whole eggs + 3 whites', calories: 250, protein: 26, carbs: 2, fat: 15 },
         ],
       },
       {
         title: 'Lunch',
         time: '01:00 PM',
         meals: [
-          { name: 'Grilled Chicken Breast with Jasmine Rice & Broccoli', portion: '200g chicken, 1.5 cups rice', calories: 680, protein: 55, carbs: 75, fat: 12 },
+          { name: 'Grilled Chicken Breast with Jasmine Rice & Broccoli', portion: '220g chicken, 2 cups rice', calories: 760, protein: 52, carbs: 108, fat: 12 },
         ],
       },
       {
         title: 'Post-Workout Shake',
         time: '05:30 PM',
         meals: [
-          { name: 'ISO-Whey Isolate + Banana', portion: '2 scoops + 1 banana', calories: 310, protein: 50, carbs: 30, fat: 2 },
+          { name: 'ISO-Whey Isolate + Large Banana & Dextrose', portion: '2 scoops whey, 1 large banana', calories: 370, protein: 46, carbs: 42, fat: 3 },
         ],
       },
       {
         title: 'Dinner',
         time: '08:00 PM',
         meals: [
-          { name: 'Salmon Filet with Sweet Potato & Asparagus', portion: '220g salmon, 250g potato', calories: 750, protein: 48, carbs: 55, fat: 28 },
+          { name: 'Salmon Filet with Sweet Potato & Asparagus', portion: '220g salmon, 300g sweet potato', calories: 800, protein: 44, carbs: 62, fat: 38 },
         ],
       },
     ],

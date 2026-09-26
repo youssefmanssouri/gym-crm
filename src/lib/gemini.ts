@@ -344,7 +344,7 @@ ${userMessage.slice(0, 1000)}
   } else if (lower.includes('hypertrophy') || lower.includes('build muscle') || lower.includes('workout')) {
     return 'Effective hypertrophy relies on progressive overload, mechanical tension, and adequate volume (10-20 hard sets per target muscle group weekly). Ensure sets are performed within 1-3 repetitions of muscular failure for peak adaptation.';
   } else {
-    return `Welcome to Apex Fitness AI! Based on your query about "${userMessage}", our automated biometric system recommends tracking your progressive overload weekly, ensuring 7-9 hours of quality recovery sleep, and maintaining proper hydration! How else can I assist your fitness journey today?`;
+    return `Welcome to Apex Fitness AI! Based on your query about "${userMessage}", our training guidance system recommends tracking your progressive overload weekly, ensuring 7-9 hours of quality recovery sleep, and maintaining proper hydration! How else can I assist your fitness journey today?`;
   }
 }
 

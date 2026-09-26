@@ -1,0 +1,16 @@
+{
+  "name": "Apex Gym CRM & Management System",
+  "short_name": "Apex CRM",
+  "description": "Modern Fitness Facility & Member Management System",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#09090b",
+  "icons": [
+    {
+      "src": "/icon",
+      "sizes": "32x32",
+      "type": "image/png"
+    }
+  ]
+}

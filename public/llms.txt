@@ -1,0 +1,41 @@
+# Apex Fitness CRM
+
+> Modern Fitness Facility & Member Management System built with Next.js, React, TypeScript, and Tailwind CSS.
+
+## Project Information
+- **Name:** Apex Gym CRM & Management System
+- **Type:** Portfolio / demonstration application
+- **Author:** Youssef Manssouri
+- **Portfolio:** https://www.youssefmanssouri.site
+- **Live Demo:** https://gym-crm-gules.vercel.app/
+- **Repository:** https://github.com/youssefmanssouri/gym-crm
+
+## Overview
+Apex Fitness CRM is a responsive web application demonstrating modern fitness facility workflows. It combines front-desk attendance verification, member lifecycle management, custom workout programming, macro-balanced nutrition planning, point-of-sale inventory transactions, staff audit logging, and automated CSV reporting.
+
+## Technology Stack
+- **Framework:** Next.js 14 (App Router)
+- **Language:** TypeScript (Strict mode)
+- **Styling:** Tailwind CSS, Framer Motion, Lucide Icons
+- **Data Architecture:** Prisma ORM with PostgreSQL support and deterministic demo fallback architecture for offline resilience
+- **AI Integration:** Google Gemini API with intelligent local heuristic fallbacks
+- **Validation:** Zod schema validation for all API routes and input forms
+
+## Core Modules
+1. **Operations Dashboard:** Facility benchmarks, monthly/weekly revenue indicators, check-in velocity, and member growth analytics.
+2. **Member CRM:** Comprehensive member directory with membership tiers, status filtering, emergency contacts, and profile inspection.
+3. **Membership Plans:** Subscription tier catalog, custom duration options, perk bundles, and direct plan assignment workflow.
+4. **Attendance Terminal:** QR pass verification interface, simulated scanner camera, and check-in access logs.
+5. **Trainer Hub & Workout Builder:** Exercise library with sets, reps, rest intervals, muscle group targeting, and AI routine generation.
+6. **Nutrition Protocol Planner:** Daily caloric and macronutrient targeting (protein, carbs, fat) with meal schedule breakdowns.
+7. **Payments & Billing:** Transaction ledger, dynamic revenue aggregation, invoice generation, and receipt printing.
+8. **Inventory & POS:** Supplement and merchandise catalog, stock level monitoring, low-stock warnings, and transactional sale checkout.
+9. **Staff & Security Audit:** Staff directory with role-based permissions (Admin, Manager, Trainer, Receptionist, Member) and system audit logs.
+10. **AI Power Suite:** Conversational fitness assistant, predictive retention modeling, and strategic revenue recommendations.
+11. **Reports & Exports:** Exportable CSV reports for financial ledgers, member directories, and facility attendance logs.
+12. **System Settings:** Facility branding, operating hours, and sales tax rate configuration.
+
+## Scope Statement
+This project is an engineering portfolio demonstration developed by Youssef Manssouri to showcase modern full-stack web development, clean UI/UX design, role-based authorization, and fault-tolerant architecture. It does not represent a live commercial fitness franchise deployment.
+
+For complete architectural and technical details, see `llms-full.txt`.

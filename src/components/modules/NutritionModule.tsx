@@ -21,40 +21,40 @@ const DEFAULT_STARTER_NUTRITION: NutritionPlan = {
   dietType: 'High Protein Recomp',
   createdBy: 'Performance Nutritionist',
   dailyCalories: 2800,
-  proteinGrams: 195,
-  carbsGrams: 280,
-  fatGrams: 75,
+  proteinGrams: 210,
+  carbsGrams: 310,
+  fatGrams: 76,
   createdAt: new Date().toISOString().slice(0, 10),
   mealCategories: [
     {
       title: 'Pre-Dawn Fuel / Breakfast',
       time: '07:30 AM',
       meals: [
-        { name: 'Oatmeal & Whey Isolate Bowl', portion: '80g oats, 1 scoop whey, 150g berries', calories: 480, protein: 40, carbs: 62, fat: 8 },
-        { name: 'Whole Pasture-Raised Eggs', portion: '3 large poached eggs', calories: 215, protein: 18, carbs: 1, fat: 15 },
+        { name: 'Oatmeal & Whey Isolate Bowl', portion: '100g oats, 1 scoop whey, fruit', calories: 610, protein: 42, carbs: 95, fat: 8 },
+        { name: 'Whole Pasture-Raised Eggs', portion: '3 large poached eggs', calories: 250, protein: 24, carbs: 2, fat: 16 },
       ],
     },
     {
       title: 'Midday Performance Lunch',
       time: '12:30 PM',
       meals: [
-        { name: 'Flame Grilled Chicken Breast', portion: '220g cooked', calories: 360, protein: 68, carbs: 0, fat: 8 },
-        { name: 'Jasmine Rice & Steamed Broccoli', portion: '200g cooked rice, 100g florets', calories: 310, protein: 7, carbs: 65, fat: 2 },
+        { name: 'Flame Grilled Chicken Breast', portion: '220g cooked', calories: 370, protein: 55, carbs: 0, fat: 8 },
+        { name: 'Jasmine Rice & Steamed Broccoli', portion: '2.5 cups cooked rice, florets', calories: 410, protein: 7, carbs: 88, fat: 2 },
       ],
     },
     {
       title: 'Post-Workout Anabolic Window',
       time: '04:30 PM',
       meals: [
-        { name: 'Hydration Recovery Shake', portion: '1 large banana, 35g whey, 300ml almond milk', calories: 340, protein: 32, carbs: 45, fat: 4 },
+        { name: 'Hydration Recovery Shake', portion: '1 large banana, 35g whey, 350ml oat milk', calories: 360, protein: 38, carbs: 45, fat: 4 },
       ],
     },
     {
       title: 'Recovery Dinner',
       time: '07:45 PM',
       meals: [
-        { name: 'Wild Atlantic Salmon Fillet', portion: '200g oven baked', calories: 410, protein: 42, carbs: 0, fat: 26 },
-        { name: 'Roasted Sweet Potato & Asparagus', portion: '200g potato, 8 spears olive oil drizzled', calories: 240, protein: 4, carbs: 48, fat: 5 },
+        { name: 'Wild Atlantic Salmon Fillet', portion: '220g oven baked', calories: 450, protein: 40, carbs: 0, fat: 32 },
+        { name: 'Roasted Sweet Potato & Asparagus', portion: '350g potato, spears with olive oil', calories: 350, protein: 4, carbs: 80, fat: 6 },
       ],
     },
   ],
@@ -127,7 +127,7 @@ export const NutritionModule: React.FC = () => {
       setCustomTitle(generatedPlan.title);
       setFeedback({
         type: 'success',
-        message: 'AI diet generated successfully! Review the macros and meals below, then click "Save Diet Plan" to persist to PostgreSQL.',
+        message: 'AI diet generated successfully! Review the macros and meals below, then click "Save Diet Plan" to save to your library.',
       });
     } catch (err: any) {
       setFeedback({ type: 'error', message: err.message || 'AI Diet generation failed' });
@@ -155,7 +155,7 @@ export const NutritionModule: React.FC = () => {
       setActivePlan(saved);
       setFeedback({
         type: 'success',
-        message: `Plan "${saved.title}" saved successfully to PostgreSQL database!`,
+        message: `Plan "${saved.title}" saved successfully to library!`,
       });
     } catch (err: any) {
       setFeedback({ type: 'error', message: err.message || 'Failed to save nutrition plan' });
@@ -270,10 +270,10 @@ export const NutritionModule: React.FC = () => {
         {/* Saved Plans Selector */}
         <div className="md:col-span-2 flex items-center gap-2 overflow-x-auto pb-1">
           <span className="text-xs text-zinc-400 font-semibold uppercase tracking-wider shrink-0 mr-1">
-            Database Plans ({plans.length}):
+            Saved Plans ({plans.length}):
           </span>
           {plans.length === 0 ? (
-            <span className="text-xs text-zinc-500 italic">No saved plans in database</span>
+            <span className="text-xs text-zinc-500 italic">No saved plans in library</span>
           ) : (
             plans.map((p) => (
               <button
@@ -385,7 +385,7 @@ export const NutritionModule: React.FC = () => {
               onClick={handleSavePlan}
               icon={isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
             >
-              {isSaving ? 'Persisting to DB...' : 'Save Plan to Database'}
+              {isSaving ? 'Saving...' : 'Save Plan'}
             </Button>
             {!activePlan.id.startsWith('temp-') && (
               <Button

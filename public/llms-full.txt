@@ -1,0 +1,88 @@
+# Apex Fitness CRM — Technical Architecture & Full Specification
+
+> Comprehensive system documentation for Apex Gym CRM & Management System.
+> Author: Youssef Manssouri (https://www.youssefmanssouri.site)
+> Repository: https://github.com/youssefmanssouri/gym-crm
+> Live Demo: https://gym-crm-gules.vercel.app/
+
+---
+
+## 1. Architectural Principles
+
+Apex Fitness CRM is engineered to demonstrate high technical standards in modern web application development:
+- **Resilient Fallback Design:** All 20 API endpoints attempt database operations via Prisma if a live PostgreSQL database is present. If the database is unreachable or offline, the API cleanly degrades to deterministic mock datasets without throwing uncaught exceptions or presenting false persistence claims to the user.
+- **Client/Server Boundary Optimization:** Heavy interactive components utilize dynamic code-splitting (`next/dynamic`) to maintain a lean initial bundle, while layout metadata and API handlers operate on the server.
+- **Security by Default:** Enforces strict HTTP headers (`Content-Security-Policy`, `Strict-Transport-Security`, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, and `Permissions-Policy`).
+- **Input Sanitization & Schema Validation:** All incoming mutation payloads are parsed through Zod schemas before processing, protecting against type mismatch, script injection, and oversized payloads.
+- **Role-Based Access Control (RBAC):** Five distinct user roles (`ADMIN`, `MANAGER`, `TRAINER`, `RECEPTIONIST`, `MEMBER`) govern view visibility, data modification rights, and API access limits.
+
+---
+
+## 2. Implemented Modules & Capabilities
+
+### Module 1: Operations Dashboard
+- **KPI Metrics:** Monthly Revenue, Weekly Revenue, Active Member Headcount, Average Retention Rate.
+- **Facility Telemetry:** Hourly check-in velocity chart (peak utilization hours), 6-month historical revenue area chart.
+- **Quick Actions:** Instant navigation to Member Registration, QR Terminal, and data refresh.
+
+### Module 2: Member CRM
+- **Registry & Filtering:** Searchable roster with status tags (`ACTIVE`, `INACTIVE`, `EXPIRED`, `FROZEN`).
+- **Profile Inspection:** Weight tracking, target goals, emergency contact data, and digital QR pass identifiers.
+
+### Module 3: Membership Plans & Subscriptions
+- **Plan Catalog:** Configurable pricing tiers, duration (monthly, annual, multi-month), and included amenities.
+- **Coupon Discount Engine:** Promo code evaluation (e.g. `APEX20`) with instant mathematical percentage recalculation.
+- **Plan Assignment:** Modal interface to directly assign or reassign subscription tiers to existing member profiles with immediate local state mutation.
+
+### Module 4: Attendance Access Terminal
+- **QR Scanning Flow:** Real-time QR string validation against the member database.
+- **Status Checks:** Gracefully grants access to active accounts while actively rejecting expired, frozen, or non-existent passes.
+- **Access Log:** Chronological table displaying member avatar, timestamp, verification method, and staff approver.
+
+### Module 5: Trainer Hub & Workout Builder
+- **Routine Editor:** Custom exercise entries including sets, reps, rest intervals (seconds), and execution instructions.
+- **AI Program Generation:** Integrated Gemini AI endpoint to generate split routines based on user experience level and target goal (`Hypertrophy`, `Strength`, `Fat Loss`).
+- **Smart Fallback:** Intelligent algorithmic generator providing structured workouts when AI credentials are not provided.
+
+### Module 6: Nutrition Protocol Builder
+- **Macro Distribution Engine:** Computes exact macronutrient breakdown (protein, carbohydrates, dietary fat) balanced to target calorie intake.
+- **Meal Timing Schedule:** Four-category breakdown (Breakfast, Midday Lunch, Post-Workout Fuel, Recovery Dinner) with gram portions and item-level macros.
+
+### Module 7: Payments & Invoicing
+- **Transaction Ledger:** Historical payment records with invoice numbers (`INV-YYYY-XXXXX`), payment methods (`CARD`, `CASH`, `RECURRING`), and member attribution.
+- **Dynamic Ledger Aggregations:** Dynamic calculation of total revenue processed and pending debits.
+- **Invoice Generation:** Printable receipt formatting and CSV export capability.
+
+### Module 8: Inventory & Point-of-Sale (POS)
+- **Product Catalog:** SKU tracking, category classification (supplements, merchandise, drinks), cost price, and retail price.
+- **Stock Depletion:** Low-stock threshold warnings with real-time stock decrement upon completing a POS checkout.
+
+### Module 9: Staff Directory & Security Audit Trail
+- **Staff Roster:** Directory of trainers, managers, receptionists, and administrators with role badges and contact info.
+- **Security Audit Logs:** Chronological record of administrative operations, login sessions, and permission assignments.
+
+### Module 10: AI Intelligence Suite
+- **Fitness Assistant:** Interactive conversational agent providing scientifically grounded exercise and nutrition recommendations.
+- **Predictive Churn & Business Insights:** Analyzes facility KPIs to deliver tactical bullet points for revenue expansion, retention safeguards, and class scheduling.
+- **Transparent Status:** Displays `GEMINI LIVE` when connected to live Google APIs and `AI ASSISTANT (DEMO MODE)` with intelligent heuristics when offline.
+
+### Module 11: Reports & Analytics
+- **One-Click CSV Export:** Generates sanitized CSV spreadsheets for Payments Ledger, Member Directory, and Facility Attendance Logs.
+- **Formula Injection Prevention:** Escapes leading special characters (`=`, `+`, `-`, `@`, tab, return) to prevent spreadsheet formula injection.
+
+### Module 12: Facility & System Settings
+- **Customization:** Configures facility name, operating hours, and sales tax rate.
+
+---
+
+## 3. Technology Stack Reference
+- **Frontend:** Next.js 14.2, React 18.3, Tailwind CSS 3.4, Framer Motion 11.5, Lucide React Icons.
+- **Backend:** Next.js App Router API Routes, Edge & Node.js runtimes.
+- **Database & Modeling:** Prisma 5.22, PostgreSQL schema (`prisma/schema.prisma`).
+- **Authentication:** HttpOnly session cookies, bcryptjs password hashing, multi-role session verification.
+- **Testing:** Automated Node.js integration test suites (`test-phase3b.js`, `test-phase3d.js`, `test-demo-coherence.js`).
+
+---
+
+## 4. Scope & Authenticity
+This software is developed by **Youssef Manssouri** for portfolio demonstration purposes. All business metrics, member accounts, and payment records in demo mode are synthetic and designed to illustrate software capability without exposing real customer data.
