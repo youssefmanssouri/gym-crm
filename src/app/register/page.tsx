@@ -2,20 +2,35 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Dumbbell, ShieldCheck, Lock, Mail, ArrowRight, AlertCircle, Loader2 } from 'lucide-react';
+import { Dumbbell, UserPlus, User, Mail, Lock, ArrowRight, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { apiLogin } from '@/lib/api-client';
+import { apiRegister } from '@/lib/api-client';
 
-export default function LoginPage() {
+interface FieldErrors {
+  name?: string;
+  email?: string;
+  password?: string;
+  confirmPassword?: string;
+}
+
+export default function RegisterPage() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const validate = (): boolean => {
-    const errors: { email?: string; password?: string } = {};
+    const errors: FieldErrors = {};
+
+    if (!name.trim()) {
+      errors.name = 'Full name is required';
+    } else if (name.trim().length < 2) {
+      errors.name = 'Name must be at least 2 characters';
+    }
 
     if (!email.trim()) {
       errors.email = 'Email address is required';
@@ -25,6 +40,14 @@ export default function LoginPage() {
 
     if (!password) {
       errors.password = 'Password is required';
+    } else if (password.length < 8) {
+      errors.password = 'Password must be at least 8 characters';
+    }
+
+    if (!confirmPassword) {
+      errors.confirmPassword = 'Confirm password is required';
+    } else if (password !== confirmPassword) {
+      errors.confirmPassword = 'Passwords do not match';
     }
 
     setFieldErrors(errors);
@@ -42,16 +65,16 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      const result = await apiLogin(email.trim(), password);
+      const result = await apiRegister(name.trim(), email.trim(), password, confirmPassword);
 
       if (result.success) {
         window.location.href = '/';
       } else {
-        setErrorMessage(result.error || 'Invalid email or password');
+        setErrorMessage(result.error || 'Registration failed');
         setIsLoading(false);
       }
     } catch {
-      setErrorMessage('An unexpected error occurred. Please try again.');
+      setErrorMessage('An unexpected error occurred during account creation.');
       setIsLoading(false);
     }
   };
@@ -74,13 +97,13 @@ export default function LoginPage() {
           <p className="text-xs text-zinc-400 font-medium">Fitness Facility & Member Operations Platform</p>
         </div>
 
-        {/* Login Card */}
+        {/* Registration Card */}
         <Card glow className="bg-zinc-900/90 border-zinc-800 p-6 sm:p-8 backdrop-blur-xl shadow-2xl">
           <div className="pb-5 border-b border-zinc-800 mb-5 text-center">
             <h2 className="text-lg font-bold text-white tracking-tight flex items-center justify-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-cyan-400" /> Sign in to Gym CRM
+              <UserPlus className="w-5 h-5 text-cyan-400" /> Create your account
             </h2>
-            <p className="text-xs text-zinc-400 mt-1">Welcome back to your workspace</p>
+            <p className="text-xs text-zinc-400 mt-1">Start using Gym CRM</p>
           </div>
 
           {errorMessage && (
@@ -95,11 +118,39 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} noValidate className="space-y-4">
             <div className="space-y-1.5">
-              <label htmlFor="login-email" className="text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
+              <label htmlFor="register-name" className="text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5 text-zinc-400" /> Full name
+              </label>
+              <input
+                id="register-name"
+                type="text"
+                name="name"
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  if (fieldErrors.name) {
+                    setFieldErrors((prev) => ({ ...prev, name: undefined }));
+                  }
+                }}
+                autoComplete="name"
+                placeholder="Alex Vance"
+                className={`w-full bg-zinc-950 border rounded-xl px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 transition-all ${
+                  fieldErrors.name
+                    ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/30'
+                    : 'border-zinc-800 focus:border-cyan-500 focus:ring-cyan-500/50'
+                }`}
+              />
+              {fieldErrors.name && (
+                <p className="text-xs text-rose-400 font-medium">{fieldErrors.name}</p>
+              )}
+            </div>
+
+            <div className="space-y-1.5">
+              <label htmlFor="register-email" className="text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
                 <Mail className="w-3.5 h-3.5 text-zinc-400" /> Email address
               </label>
               <input
-                id="login-email"
+                id="register-email"
                 type="email"
                 name="email"
                 value={email}
@@ -123,11 +174,11 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="login-password" className="text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
+              <label htmlFor="register-password" className="text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
                 <Lock className="w-3.5 h-3.5 text-zinc-400" /> Password
               </label>
               <input
-                id="login-password"
+                id="register-password"
                 type="password"
                 name="password"
                 value={password}
@@ -137,7 +188,7 @@ export default function LoginPage() {
                     setFieldErrors((prev) => ({ ...prev, password: undefined }));
                   }
                 }}
-                autoComplete="current-password"
+                autoComplete="new-password"
                 placeholder="••••••••••••"
                 className={`w-full bg-zinc-950 border rounded-xl px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 transition-all ${
                   fieldErrors.password
@@ -150,6 +201,34 @@ export default function LoginPage() {
               )}
             </div>
 
+            <div className="space-y-1.5">
+              <label htmlFor="register-confirm-password" className="text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5 text-zinc-400" /> Confirm password
+              </label>
+              <input
+                id="register-confirm-password"
+                type="password"
+                name="confirmPassword"
+                value={confirmPassword}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  if (fieldErrors.confirmPassword) {
+                    setFieldErrors((prev) => ({ ...prev, confirmPassword: undefined }));
+                  }
+                }}
+                autoComplete="new-password"
+                placeholder="••••••••••••"
+                className={`w-full bg-zinc-950 border rounded-xl px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 transition-all ${
+                  fieldErrors.confirmPassword
+                    ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/30'
+                    : 'border-zinc-800 focus:border-cyan-500 focus:ring-cyan-500/50'
+                }`}
+              />
+              {fieldErrors.confirmPassword && (
+                <p className="text-xs text-rose-400 font-medium">{fieldErrors.confirmPassword}</p>
+              )}
+            </div>
+
             <Button
               type="submit"
               variant="glow"
@@ -157,19 +236,19 @@ export default function LoginPage() {
               className="w-full mt-2 justify-center py-2.5"
               icon={isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4" />}
             >
-              {isLoading ? 'Verifying Credentials...' : 'Sign In'}
+              {isLoading ? 'Creating Account...' : 'Create Account'}
             </Button>
           </form>
 
-          {/* Registration Navigation Link */}
+          {/* Sign In Navigation Link */}
           <div className="mt-6 pt-5 border-t border-zinc-800/80 text-center space-y-1">
             <p className="text-xs text-zinc-400">
-              Don&apos;t have an account?{' '}
+              Already have an account?{' '}
               <Link
-                href="/register"
+                href="/login"
                 className="text-cyan-400 hover:text-cyan-300 font-semibold transition-colors underline-offset-4 hover:underline"
               >
-                Create account
+                Sign in
               </Link>
             </p>
           </div>

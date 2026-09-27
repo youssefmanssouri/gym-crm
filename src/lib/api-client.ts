@@ -46,6 +46,28 @@ export async function apiLogin(
   }
 }
 
+export async function apiRegister(
+  name: string,
+  email: string,
+  password: string,
+  confirmPassword: string
+): Promise<{ success: boolean; user?: User; error?: string }> {
+  try {
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password, confirmPassword }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      return { success: false, error: data.error || 'Registration failed' };
+    }
+    return { success: true, user: data.user };
+  } catch {
+    return { success: false, error: 'Network connection error during registration' };
+  }
+}
+
 export async function apiLogout(): Promise<void> {
   try {
     await fetch('/api/auth/logout', {

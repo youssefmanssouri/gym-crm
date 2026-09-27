@@ -14,8 +14,8 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // If already authenticated and trying to access /login, redirect to /
-  if (pathname === '/login') {
+  // If already authenticated and trying to access /login or /register, redirect to /
+  if (pathname === '/login' || pathname === '/register') {
     if (sessionCookie) {
       const homeUrl = new URL('/', request.url);
       return NextResponse.redirect(homeUrl);
@@ -26,5 +26,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/', '/login'],
+  matcher: ['/', '/login', '/register'],
 };
