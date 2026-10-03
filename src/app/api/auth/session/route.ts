@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getCurrentUser } from '@/lib/auth-server';
+import { getCurrentUser, clearSessionCookie } from '@/lib/auth-server';
 
 export async function GET() {
   const user = await getCurrentUser();
 
   if (!user) {
+    clearSessionCookie();
     return NextResponse.json(
       {
         authenticated: false,

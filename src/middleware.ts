@@ -14,14 +14,6 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // If already authenticated and trying to access /login or /register, redirect to /
-  if (pathname === '/login' || pathname === '/register') {
-    if (sessionCookie) {
-      const homeUrl = new URL('/', request.url);
-      return NextResponse.redirect(homeUrl);
-    }
-  }
-
   return NextResponse.next();
 }
 
