@@ -25,6 +25,9 @@ if (env.DIRECT_URL && !env.DIRECT_URL.includes('localhost') && process.env.VERCE
   try {
     execSync('npx prisma migrate deploy', { env, stdio: 'inherit' });
     console.log('[BUILD] Prisma migrations deployed successfully.');
+    console.log('[BUILD] Ensuring essential cloud database records...');
+    execSync('node scripts/ensure-cloud-seed.js', { env, stdio: 'inherit' });
+    console.log('[BUILD] Cloud seed verification complete.');
   } catch (err) {
     console.error('[BUILD] Prisma migration deployment error:', err.message);
     process.exit(1);
