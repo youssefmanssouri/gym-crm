@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { requireAuth, requireRole } from '@/lib/auth-server';
 import { prisma } from '@/lib/db';
 import { updateMemberSchema } from '@/lib/validations';
+import { recordAuditLog, extractClientIp } from '@/lib/audit';
 
 interface RouteParams {
   params: { id: string };
@@ -92,7 +93,8 @@ export async function GET(request: Request, { params }: RouteParams) {
 
 export async function PATCH(request: Request, { params }: RouteParams) {
   try {
-    await requireRole(['ADMIN', 'MANAGER', 'RECEPTIONIST']);
+    const authUser = await requireRole(['ADMIN', 'MANAGER', 'RECEPTIONIST']);
+    const ipAddress = extractClientIp(request);
     const { id } = params;
     const body = await request.json().catch(() => null);
     const parsed = updateMemberSchema.safeParse(body);
@@ -131,6 +133,15 @@ export async function PATCH(request: Request, { params }: RouteParams) {
         where: { id },
         data: profileFields,
       });
+
+      await recordAuditLog({
+        actor: authUser,
+        action: 'UPDATE_MEMBER',
+        entity: 'Member',
+        details: `Updated member ${member.user.name} (Profile ID: ${id}). Modified: ${Object.keys(parsed.data).join(', ')}`,
+        ipAddress,
+        tx,
+      });
     });
 
     return NextResponse.json({ success: true, message: 'Member profile updated successfully' });
@@ -145,20 +156,33 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 
 export async function DELETE(request: Request, { params }: RouteParams) {
   try {
-    await requireRole(['ADMIN', 'MANAGER']);
+    const authUser = await requireRole(['ADMIN', 'MANAGER']);
+    const ipAddress = extractClientIp(request);
     const { id } = params;
 
     const profile = await prisma.memberProfile.findUnique({
       where: { id },
+      include: { user: true },
     });
 
     if (!profile) {
       return NextResponse.json({ success: false, error: 'Member not found' }, { status: 404 });
     }
 
-    // Cascade deletes the User and associated profile/memberships
-    await prisma.user.delete({
-      where: { id: profile.userId },
+    await prisma.$transaction(async (tx) => {
+      await recordAuditLog({
+        actor: authUser,
+        action: 'DELETE_MEMBER',
+        entity: 'Member',
+        details: `Deleted member ${profile.user?.name || 'Unknown'} (${profile.user?.email || 'N/A'}, Profile ID: ${id})`,
+        ipAddress,
+        tx,
+      });
+
+      // Cascade deletes the User and associated profile/memberships
+      await tx.user.delete({
+        where: { id: profile.userId },
+      });
     });
 
     return NextResponse.json({ success: true, message: 'Member deleted successfully' });

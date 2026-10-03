@@ -48,7 +48,7 @@ export const SettingsModule: React.FC = () => {
             )}
 
             <div className="pt-4 flex items-center justify-end border-t border-zinc-800">
-              <Button variant="glow" size="sm" type="submit" icon={<Save className="w-4 h-4" />}>
+              <Button variant="primary" size="sm" type="submit" icon={<Save className="w-4 h-4" />}>
                 Save Settings
               </Button>
             </div>

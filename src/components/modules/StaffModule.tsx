@@ -1,22 +1,56 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { UserCheck, Shield, Lock, Eye, CheckCircle2, Clock } from 'lucide-react';
+import { UserCheck, Shield, Lock, Eye, CheckCircle2, Clock, AlertCircle, RefreshCw } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
-import { MOCK_AUDIT_LOGS, MOCK_USERS } from '@/lib/mock-data';
+import { Avatar } from '../ui/Avatar';
+import { User, SecurityAuditLog } from '@/lib/types';
+import { apiGetStaff, apiGetAuditLogs } from '@/lib/api-client';
 
 export const StaffModule: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'ROSTER' | 'AUDIT'>('ROSTER');
 
-  const staffMembers = [
-    MOCK_USERS.admin,
-    MOCK_USERS.manager,
-    MOCK_USERS.trainer,
-    MOCK_USERS.receptionist,
-  ];
+  const [staffMembers, setStaffMembers] = useState<User[]>([]);
+  const [isLoadingStaff, setIsLoadingStaff] = useState(true);
+  const [staffError, setStaffError] = useState<string | null>(null);
+
+  const [auditLogs, setAuditLogs] = useState<SecurityAuditLog[]>([]);
+  const [isLoadingAudit, setIsLoadingAudit] = useState(false);
+  const [auditError, setAuditError] = useState<string | null>(null);
+
+  const fetchStaff = async () => {
+    setIsLoadingStaff(true);
+    setStaffError(null);
+    try {
+      const data = await apiGetStaff();
+      setStaffMembers(data);
+    } catch (err: any) {
+      setStaffError(err.message || 'Failed to fetch staff roster from database.');
+    } finally {
+      setIsLoadingStaff(false);
+    }
+  };
+
+  const fetchAuditLogs = async () => {
+    setIsLoadingAudit(true);
+    setAuditError(null);
+    try {
+      const data = await apiGetAuditLogs();
+      setAuditLogs(data);
+    } catch (err: any) {
+      setAuditError(err.message || 'Failed to fetch audit logs from database.');
+    } finally {
+      setIsLoadingAudit(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStaff();
+    fetchAuditLogs();
+  }, []);
 
   return (
     <div className="space-y-6 pb-12">
@@ -47,43 +81,91 @@ export const StaffModule: React.FC = () => {
       </div>
 
       {activeTab === 'ROSTER' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {staffMembers.map((staff) => (
-            <Card key={staff.id} glow className="p-5 flex flex-col justify-between space-y-4">
-              <div>
-                <div className="flex items-center gap-3">
-                  <Image
-                    src={staff.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80'}
-                    alt={staff.name}
-                    width={48}
-                    height={48}
-                    className="w-12 h-12 rounded-2xl object-cover border border-zinc-700"
-                  />
-                  <div>
-                    <h4 className="text-sm font-bold text-white">{staff.name}</h4>
-                    <p className="text-xs text-zinc-400">{staff.email}</p>
-                    <Badge variant={staff.role === 'ADMIN' ? 'cyan' : staff.role === 'TRAINER' ? 'purple' : 'default'} className="mt-1">
-                      {staff.role}
-                    </Badge>
-                  </div>
-                </div>
-
-                <p className="text-xs text-zinc-400 mt-3">{staff.bio || 'Staff Member'}</p>
+        <div className="space-y-4">
+          {staffError && (
+            <div className="flex items-center justify-between p-4 rounded-2xl bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+                <span>{staffError}</span>
               </div>
+              <Button variant="outline" size="sm" onClick={fetchStaff} className="border-rose-500/40 text-rose-300 hover:bg-rose-900/30">
+                Retry
+              </Button>
+            </div>
+          )}
 
-              <div className="pt-3 border-t border-zinc-800 flex items-center justify-between text-xs">
-                <span className="text-zinc-500">{staff.phone}</span>
-                <Badge variant="success">Active</Badge>
-              </div>
+          {isLoadingStaff ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 animate-pulse">
+              {[1, 2, 3, 4].map((i) => (
+                <Card key={i} className="h-48 bg-zinc-900/40 border-zinc-800">
+                  <div className="h-full" />
+                </Card>
+              ))}
+            </div>
+          ) : staffMembers.length === 0 ? (
+            <Card className="p-8 text-center text-zinc-500 text-xs">
+              No staff members found in database.
             </Card>
-          ))}
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {staffMembers.map((staff) => (
+                <Card key={staff.id} className="p-5 flex flex-col justify-between space-y-4">
+                  <div>
+                    <div className="flex items-center gap-3">
+                      <Avatar src={staff.avatar} name={staff.name} size="lg" />
+                      <div>
+                        <h4 className="text-sm font-bold text-white">{staff.name}</h4>
+                        <p className="text-xs text-zinc-400">{staff.email}</p>
+                        <Badge variant={staff.role === 'ADMIN' ? 'cyan' : staff.role === 'TRAINER' ? 'purple' : 'default'} className="mt-1">
+                          {staff.role}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-zinc-400 mt-3">{staff.bio || 'Staff Member'}</p>
+                  </div>
+
+                  <div className="pt-3 border-t border-zinc-800 flex items-center justify-between text-xs">
+                    <span className="text-zinc-500">{staff.phone}</span>
+                    <Badge variant="success">Active</Badge>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       ) : (
         <Card className="space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider">Security & Operational Audit Trail</h3>
-            <Badge variant="cyan">SYSTEM AUDIT TRAIL</Badge>
+            <div>
+              <h3 className="text-sm font-bold text-white uppercase tracking-wider">Security & Operational Audit Trail</h3>
+              <p className="text-[11px] text-zinc-400">Authenticated system activity recorded directly in PostgreSQL</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={fetchAuditLogs}
+                disabled={isLoadingAudit}
+                icon={<RefreshCw className={`w-3.5 h-3.5 ${isLoadingAudit ? 'animate-spin' : ''}`} />}
+              >
+                Refresh
+              </Button>
+              <Badge variant="cyan">SYSTEM AUDIT TRAIL</Badge>
+            </div>
           </div>
+
+          {auditError && (
+            <div className="flex items-center justify-between p-4 rounded-2xl bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+                <span>{auditError}</span>
+              </div>
+              <Button variant="outline" size="sm" onClick={fetchAuditLogs} className="border-rose-500/40 text-rose-300 hover:bg-rose-900/30">
+                Retry
+              </Button>
+            </div>
+          )}
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
@@ -98,19 +180,33 @@ export const StaffModule: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-800/60">
-                {MOCK_AUDIT_LOGS.map((log) => (
-                  <tr key={log.id} className="hover:bg-zinc-800/40 transition-colors">
-                    <td className="py-2.5 px-2 text-zinc-400 font-mono">{log.createdAt}</td>
-                    <td className="py-2.5 px-2">
-                      <span className="font-bold text-white">{log.userEmail}</span>
-                      <span className="text-[10px] text-zinc-500 block font-mono">{log.userRole}</span>
+                {isLoadingAudit ? (
+                  <tr>
+                    <td colSpan={6} className="py-8 text-center text-zinc-500">
+                      Loading audit records from database...
                     </td>
-                    <td className="py-2.5 px-2"><Badge variant="purple">{log.action}</Badge></td>
-                    <td className="py-2.5 px-2 text-zinc-300">{log.entity}</td>
-                    <td className="py-2.5 px-2 text-zinc-400">{log.details}</td>
-                    <td className="py-2.5 px-2 text-right font-mono text-zinc-500">{log.ipAddress}</td>
                   </tr>
-                ))}
+                ) : auditLogs.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-8 text-center text-zinc-500 italic">
+                      No security audit logs recorded yet in database. Operational events will be tracked here.
+                    </td>
+                  </tr>
+                ) : (
+                  auditLogs.map((log) => (
+                    <tr key={log.id} className="hover:bg-zinc-800/40 transition-colors">
+                      <td className="py-2.5 px-2 text-zinc-400 font-mono">{log.createdAt}</td>
+                      <td className="py-2.5 px-2">
+                        <span className="font-bold text-white">{log.userEmail}</span>
+                        <span className="text-[10px] text-zinc-500 block font-mono">{log.userRole}</span>
+                      </td>
+                      <td className="py-2.5 px-2"><Badge variant="purple">{log.action}</Badge></td>
+                      <td className="py-2.5 px-2 text-zinc-300">{log.entity}</td>
+                      <td className="py-2.5 px-2 text-zinc-400">{log.details}</td>
+                      <td className="py-2.5 px-2 text-right font-mono text-zinc-500">{log.ipAddress}</td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

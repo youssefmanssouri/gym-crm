@@ -7,6 +7,7 @@ import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Badge } from '../ui/Badge';
+import { Avatar } from '../ui/Avatar';
 import { AttendanceRecord, MemberProfile } from '@/lib/types';
 import { apiGetAttendance, apiCheckInMember } from '@/lib/api-client';
 
@@ -83,19 +84,18 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ onScanComple
       {/* Terminal Scanner Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* QR Scanner Hardware Simulator Card */}
-        <Card glow className="bg-gradient-to-b from-zinc-900 via-zinc-900 to-zinc-950 border-cyan-500/40 relative overflow-hidden">
+        <Card className="bg-zinc-900 border-zinc-800 relative overflow-hidden">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <QrCode className="w-5 h-5 text-cyan-400" />
               <h3 className="text-sm font-bold text-white">Live Scanner Terminal</h3>
             </div>
-            <Badge variant="cyan">SCANNER ONLINE</Badge>
+            <Badge variant="cyan">SCANNER READY</Badge>
           </div>
 
           {/* Scanner Viewfinder Box */}
-          <div className="relative w-full h-52 bg-zinc-950 rounded-2xl border-2 border-dashed border-cyan-500/40 flex flex-col items-center justify-center p-4 overflow-hidden group">
-            <div className="absolute inset-0 bg-cyan-500/5 animate-pulse" />
-            <div className="w-full h-0.5 bg-cyan-400 absolute top-0 animate-[bounce_3s_infinite] shadow-[0_0_15px_#06b6d4]" />
+          <div className="relative w-full h-52 bg-zinc-950 rounded-2xl border-2 border-dashed border-zinc-700 flex flex-col items-center justify-center p-4 overflow-hidden group">
+            <div className="w-full h-0.5 bg-cyan-400/80 absolute top-0" />
             
             <QrCode className="w-16 h-16 text-cyan-400/80 mb-2 group-hover:scale-110 transition-transform" />
             <p className="text-xs font-semibold text-zinc-300 text-center">Position QR Pass Code in Viewfinder</p>
@@ -136,7 +136,7 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ onScanComple
                   if (e.key === 'Enter') handleSimulateScan();
                 }}
               />
-              <Button variant="glow" size="sm" onClick={() => handleSimulateScan()} disabled={isScanning}>
+              <Button variant="primary" size="sm" onClick={() => handleSimulateScan()} disabled={isScanning}>
                 {isScanning ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Scan'}
               </Button>
             </div>
@@ -198,13 +198,7 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ onScanComple
                   {attendanceList.map((item) => (
                     <tr key={item.id} className="hover:bg-zinc-800/40 transition-colors">
                       <td className="py-3 px-2 flex items-center gap-2.5">
-                        <Image
-                          src={item.userAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80'}
-                          alt={item.userName}
-                          width={28}
-                          height={28}
-                          className="w-7 h-7 rounded-full object-cover border border-zinc-700"
-                        />
+                        <Avatar src={item.userAvatar} name={item.userName} size="sm" />
                         <span className="font-semibold text-white">{item.userName}</span>
                       </td>
                       <td className="py-3 px-2 text-zinc-300">

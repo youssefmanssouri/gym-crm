@@ -3,7 +3,7 @@ import { requireAuth, requireRole } from '@/lib/auth-server';
 import { prisma } from '@/lib/db';
 import { createPaymentSchema } from '@/lib/validations';
 import { PaymentRecord } from '@/lib/types';
-import { MOCK_PAYMENTS } from '@/lib/mock-data';
+import { recordAuditLog, extractClientIp } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,6 +17,9 @@ export async function GET() {
           user: true,
           membership: {
             include: { plan: true },
+          },
+          orderItems: {
+            include: { product: true },
           },
         },
         orderBy: { date: 'desc' },
@@ -47,6 +50,15 @@ export async function GET() {
       invoiceNumber: p.invoiceNumber,
       description: p.description || 'Payment Transaction',
       date: p.date.toLocaleString(),
+      orderItems: p.orderItems?.map((oi) => ({
+        id: oi.id,
+        paymentId: oi.paymentId,
+        productId: oi.productId,
+        productName: oi.product.name,
+        quantity: oi.quantity,
+        unitPrice: oi.unitPrice,
+        createdAt: oi.createdAt.toISOString().slice(0, 10),
+      })),
     }));
 
     const totalRevenue = aggregateCompleted._sum.amount || 0;
@@ -67,28 +79,18 @@ export async function GET() {
     if (error instanceof Error && error.message === 'UNAUTHORIZED') {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
-    console.warn('PostgreSQL query failed, serving verified portfolio demo payments:', error);
-    const mockTotal = MOCK_PAYMENTS.reduce((sum, p) => (p.status === 'COMPLETED' ? sum + p.amount : sum), 0);
-    const mockPending = MOCK_PAYMENTS.reduce((sum, p) => (p.status === 'PENDING' ? sum + p.amount : sum), 0);
-    const mockRefundedCount = MOCK_PAYMENTS.filter((p) => p.status === 'REFUNDED').length;
-    const mockRefundRate = MOCK_PAYMENTS.length > 0 ? ((mockRefundedCount / MOCK_PAYMENTS.length) * 100).toFixed(1) : '0.0';
-
-    return NextResponse.json({
-      success: true,
-      payments: MOCK_PAYMENTS,
-      total: MOCK_PAYMENTS.length,
-      aggregates: {
-        totalRevenue: mockTotal,
-        pendingAmount: mockPending,
-        refundRate: `${mockRefundRate}%`,
-      },
-    });
+    console.error('Failed to retrieve payments from database:', error);
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable. Failed to retrieve payment ledger.' },
+      { status: 500 }
+    );
   }
 }
 
 export async function POST(request: Request) {
   try {
     const authUser = await requireRole(['ADMIN', 'MANAGER', 'RECEPTIONIST']);
+    const ipAddress = extractClientIp(request);
 
     const body = await request.json().catch(() => null);
     const parsed = createPaymentSchema.safeParse(body);
@@ -147,6 +149,14 @@ export async function POST(request: Request) {
         user: true,
         membership: { include: { plan: true } },
       },
+    });
+
+    await recordAuditLog({
+      actor: authUser,
+      action: 'CREATE_PAYMENT',
+      entity: 'Payment',
+      details: `Processed ${paymentMethod} payment of $${amount} for ${newPayment.user.name} (${newPayment.user.email}). Invoice: ${invoiceNumber}, Payment ID: ${newPayment.id}`,
+      ipAddress,
     });
 
     const formatted: PaymentRecord = {

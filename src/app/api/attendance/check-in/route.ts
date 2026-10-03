@@ -3,11 +3,12 @@ import { requireRole } from '@/lib/auth-server';
 import { prisma } from '@/lib/db';
 import { checkInSchema } from '@/lib/validations';
 import { AttendanceRecord, MemberProfile } from '@/lib/types';
-import { MOCK_MEMBERS } from '@/lib/mock-data';
+import { recordAuditLog, extractClientIp } from '@/lib/audit';
 
 export async function POST(request: Request) {
   try {
     const authStaff = await requireRole(['ADMIN', 'MANAGER', 'RECEPTIONIST', 'TRAINER']);
+    const ipAddress = extractClientIp(request);
 
     const body = await request.json().catch(() => null);
     const parsed = checkInSchema.safeParse(body);
@@ -110,6 +111,14 @@ export async function POST(request: Request) {
         include: { user: true },
       });
 
+      await recordAuditLog({
+        actor: authStaff,
+        action: 'CHECK_IN',
+        entity: 'Attendance',
+        details: `Recorded check-in for member ${member.user.name} (${member.user.email}). Method: ${attendance.method}, verified by: ${authStaff.name}`,
+        ipAddress,
+      });
+
       const formattedRecord: AttendanceRecord = {
         id: attendance.id,
         userId: attendance.userId,
@@ -160,73 +169,10 @@ export async function POST(request: Request) {
         { status: 201 }
       );
     } catch (dbError: unknown) {
-      console.warn('Database query failed for check-in, executing verified demo check-in fallback:', dbError);
-
-      // Deterministic demo mode check-in verification
-      const mockMember = MOCK_MEMBERS.find(
-        (m) =>
-          m.qrCode.toLowerCase() === cleanCode ||
-          m.user.email.toLowerCase() === cleanCode
-      );
-
-      if (!mockMember) {
-        return NextResponse.json(
-          { success: false, error: 'Invalid QR Pass Code or unregistered member account.' },
-          { status: 404 }
-        );
-      }
-
-      // Check user account status
-      if (mockMember.user.status !== 'ACTIVE') {
-        return NextResponse.json(
-          {
-            success: false,
-            error: `Access Denied: Member account status is ${mockMember.user.status}.`,
-          },
-          { status: 403 }
-        );
-      }
-
-      // Check membership plan validity
-      const activeSub = mockMember.membership;
-      if (!activeSub || activeSub.status !== 'ACTIVE') {
-        const statusText = activeSub?.status || 'EXPIRED';
-        return NextResponse.json(
-          {
-            success: false,
-            error: `Access Denied: Membership status is ${statusText}. Please renew.`,
-            member: {
-              id: mockMember.id,
-              userId: mockMember.userId,
-              userName: mockMember.user.name,
-              membershipStatus: statusText,
-            },
-          },
-          { status: 403 }
-        );
-      }
-
-      const now = new Date();
-      const formattedRecord: AttendanceRecord = {
-        id: `att-demo-${Date.now()}`,
-        userId: mockMember.userId,
-        userName: mockMember.user.name,
-        userAvatar: mockMember.user.avatar,
-        userRole: mockMember.user.role,
-        checkInTime: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        method: 'QR_CODE',
-        verifiedBy: authStaff.name || 'Receptionist Terminal',
-      };
-
+      console.error('Database query failed for check-in terminal:', dbError);
       return NextResponse.json(
-        {
-          success: true,
-          message: `Welcome, ${mockMember.user.name}! Access Granted.`,
-          attendance: formattedRecord,
-          member: mockMember,
-          isDemoMode: true,
-        },
-        { status: 201 }
+        { success: false, error: 'Database service unavailable: Check-in could not be recorded.' },
+        { status: 500 }
       );
     }
   } catch (error: unknown) {

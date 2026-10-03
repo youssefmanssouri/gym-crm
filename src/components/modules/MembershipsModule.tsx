@@ -8,26 +8,31 @@ import { Badge } from '../ui/Badge';
 import { Modal } from '../ui/Modal';
 import { Input } from '../ui/Input';
 import { MembershipPlan, MemberProfile } from '@/lib/types';
-import { MOCK_MEMBERSHIP_PLANS, MOCK_MEMBERS } from '@/lib/mock-data';
-import { apiGetMembers } from '@/lib/api-client';
+import { apiGetMembers, apiGetPlans } from '@/lib/api-client';
 
 export const MembershipsModule: React.FC = () => {
-  const [plans, setPlans] = useState<MembershipPlan[]>(MOCK_MEMBERSHIP_PLANS);
+  const [plans, setPlans] = useState<MembershipPlan[]>([]);
   const [isAddPlanModalOpen, setIsAddPlanModalOpen] = useState(false);
   const [couponCode, setCouponCode] = useState('');
   const [discountApplied, setDiscountApplied] = useState<number | null>(null);
   const [assigningPlan, setAssigningPlan] = useState<MembershipPlan | null>(null);
-  const [members, setMembers] = useState<MemberProfile[]>(MOCK_MEMBERS);
-  const [selectedMemberId, setSelectedMemberId] = useState<string>(MOCK_MEMBERS[0]?.id || '');
+  const [members, setMembers] = useState<MemberProfile[]>([]);
+  const [selectedMemberId, setSelectedMemberId] = useState<string>('');
   const [assignSuccess, setAssignSuccess] = useState<string | null>(null);
 
   React.useEffect(() => {
-    apiGetMembers().then((res) => {
-      if (res && res.length > 0) {
-        setMembers(res);
-        setSelectedMemberId(res[0].id);
+    Promise.all([
+      apiGetPlans().catch(() => []),
+      apiGetMembers().catch(() => []),
+    ]).then(([plansData, membersData]) => {
+      if (plansData && plansData.length > 0) {
+        setPlans(plansData);
       }
-    }).catch(() => {});
+      if (membersData && membersData.length > 0) {
+        setMembers(membersData);
+        setSelectedMemberId(membersData[0].id);
+      }
+    });
   }, []);
 
   // New Plan Form State
@@ -74,13 +79,13 @@ export const MembershipsModule: React.FC = () => {
           <h2 className="text-2xl font-extrabold text-white tracking-tight">Membership Plans & Pricing</h2>
           <p className="text-xs text-zinc-400 mt-1">Configure subscription tiers, discount rules, and perk bundles.</p>
         </div>
-        <Button variant="glow" size="sm" icon={<Plus className="w-4 h-4" />} onClick={() => setIsAddPlanModalOpen(true)}>
+        <Button variant="primary" size="sm" icon={<Plus className="w-4 h-4" />} onClick={() => setIsAddPlanModalOpen(true)}>
           + Create Membership Plan
         </Button>
       </div>
 
       {/* Coupon & Promotional Banner */}
-      <Card className="bg-gradient-to-r from-zinc-900 via-zinc-900 to-cyan-950/40 border-cyan-500/30 flex flex-col md:flex-row items-center justify-between p-5 gap-4">
+      <Card className="bg-zinc-900/60 border border-zinc-800 flex flex-col md:flex-row items-center justify-between p-5 gap-4">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
             <Tag className="w-5 h-5" />
@@ -125,9 +130,8 @@ export const MembershipsModule: React.FC = () => {
           return (
             <Card
               key={plan.id}
-              glow
               className={`flex flex-col justify-between p-6 relative ${
-                plan.isPopular ? 'border-cyan-500/50 bg-gradient-to-b from-zinc-900 via-zinc-900 to-cyan-950/20' : ''
+                plan.isPopular ? 'border-cyan-500/40 bg-zinc-900/90' : 'border-zinc-800'
               }`}
             >
               {plan.isPopular && (
@@ -166,7 +170,7 @@ export const MembershipsModule: React.FC = () => {
 
               <div className="mt-6">
                 <Button
-                  variant={plan.isPopular ? 'glow' : 'outline'}
+                  variant={plan.isPopular ? 'primary' : 'outline'}
                   size="sm"
                   className="w-full"
                   onClick={() => setAssigningPlan(plan)}
@@ -225,7 +229,7 @@ export const MembershipsModule: React.FC = () => {
                 Cancel
               </Button>
               <Button
-                variant="glow"
+                variant="primary"
                 type="button"
                 onClick={() => {
                   const targetMember = members.find((m) => m.id === selectedMemberId);
@@ -281,7 +285,7 @@ export const MembershipsModule: React.FC = () => {
 
           <div className="pt-4 flex items-center justify-end gap-3 border-t border-zinc-800">
             <Button variant="ghost" type="button" onClick={() => setIsAddPlanModalOpen(false)}>Cancel</Button>
-            <Button variant="glow" type="submit">Publish Plan</Button>
+            <Button variant="primary" type="submit">Publish Plan</Button>
           </div>
         </form>
       </Modal>

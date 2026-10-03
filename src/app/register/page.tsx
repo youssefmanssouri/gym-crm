@@ -98,7 +98,7 @@ export default function RegisterPage() {
         </div>
 
         {/* Registration Card */}
-        <Card glow className="bg-zinc-900/90 border-zinc-800 p-6 sm:p-8 backdrop-blur-xl shadow-2xl">
+        <Card className="bg-zinc-900/90 border-zinc-800 p-6 sm:p-8 backdrop-blur-xl shadow-xl">
           <div className="pb-5 border-b border-zinc-800 mb-5 text-center">
             <h2 className="text-lg font-bold text-white tracking-tight flex items-center justify-center gap-2">
               <UserPlus className="w-5 h-5 text-cyan-400" /> Create your account
@@ -231,7 +231,7 @@ export default function RegisterPage() {
 
             <Button
               type="submit"
-              variant="glow"
+              variant="primary"
               disabled={isLoading}
               className="w-full mt-2 justify-center py-2.5"
               icon={isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4" />}

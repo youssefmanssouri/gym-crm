@@ -1,0 +1,7 @@
+.env
+.env.*
+.next
+.netlify
+node_modules
+scratch
+*.log

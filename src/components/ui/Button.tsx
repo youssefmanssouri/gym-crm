@@ -26,11 +26,11 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   const variants = {
-    primary: 'bg-cyan-500 hover:bg-cyan-400 text-zinc-950 font-semibold shadow-lg shadow-cyan-500/20',
-    glow: 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold shadow-lg shadow-cyan-500/30 border border-cyan-400/30',
+    primary: 'bg-cyan-500 hover:bg-cyan-400 text-zinc-950 font-semibold shadow-md shadow-cyan-500/20',
+    glow: 'bg-cyan-500 hover:bg-cyan-400 text-zinc-950 font-semibold shadow-md shadow-cyan-500/20',
     secondary: 'bg-zinc-800 hover:bg-zinc-700 text-zinc-100 border border-zinc-700/80',
     outline: 'bg-transparent hover:bg-zinc-800/60 text-zinc-300 border border-zinc-700 hover:border-zinc-500',
-    danger: 'bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-600/20',
+    danger: 'bg-rose-600 hover:bg-rose-500 text-white shadow-md shadow-rose-600/20',
     ghost: 'bg-transparent hover:bg-zinc-800/50 text-zinc-400 hover:text-zinc-100',
   };
 

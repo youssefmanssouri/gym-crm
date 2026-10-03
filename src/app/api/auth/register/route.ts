@@ -3,7 +3,7 @@ import { prisma } from '@/lib/db';
 import { registerSchema } from '@/lib/validations';
 import { createSessionToken, setSessionCookie, SessionUser } from '@/lib/auth-server';
 import { UserRole } from '@/lib/types';
-import { MOCK_USERS } from '@/lib/mock-data';
+import { recordAuditLog, extractClientIp } from '@/lib/audit';
 import bcrypt from 'bcryptjs';
 
 export async function POST(request: Request) {
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
 
     const { name, email, password } = parsed.data;
     const normalizedEmail = email.toLowerCase().trim();
-    const avatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80';
+    const avatar = null;
     const uniqueQr = `APEX-M-${Date.now().toString(36).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
     let sessionUser: SessionUser;
@@ -64,6 +64,19 @@ export async function POST(request: Request) {
           },
         });
 
+        await recordAuditLog({
+          actor: {
+            id: newUser.id,
+            email: newUser.email,
+            role: 'MEMBER',
+          },
+          action: 'REGISTER',
+          entity: 'User',
+          details: `Self-service member account registration for ${newUser.name} (${newUser.email})`,
+          ipAddress: extractClientIp(request),
+          tx,
+        });
+
         return newUser;
       });
 
@@ -77,29 +90,15 @@ export async function POST(request: Request) {
         phone: result.phone || undefined,
       };
     } catch (dbErr) {
-      console.warn('PostgreSQL database query failed, applying verified portfolio resilience fallback:', dbErr);
-
-      // Duplicate check against portfolio mock users
-      const isMockDuplicate = Object.values(MOCK_USERS).some(
-        (u) => u.email.toLowerCase() === normalizedEmail
+      console.error('Registration database transaction failed:', dbErr);
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Database service unavailable. Account could not be created.',
+          details: dbErr instanceof Error ? dbErr.message : String(dbErr),
+        },
+        { status: 503 }
       );
-
-      if (isMockDuplicate) {
-        return NextResponse.json(
-          { success: false, error: 'An account with this email address already exists' },
-          { status: 409 }
-        );
-      }
-
-      // Initialize session user with least-privileged MEMBER role
-      sessionUser = {
-        id: `usr-mem-${Date.now()}`,
-        email: normalizedEmail,
-        name: name.trim(),
-        avatar,
-        role: 'MEMBER',
-        status: 'ACTIVE',
-      };
     }
 
     // 4. Create cryptographically signed session token & set HttpOnly cookie

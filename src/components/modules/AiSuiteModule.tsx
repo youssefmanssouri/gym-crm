@@ -99,12 +99,12 @@ export const AiSuiteModule: React.FC = () => {
               <div>
                 <h3 className="text-sm font-bold text-white">APEX Fitness Assistant</h3>
                 <p className="text-[10px] text-zinc-500">
-                  {isLiveAI ? 'Powered by Google Gemini AI' : 'Intelligent Heuristics & Demo Guidance'}
+                  {isLiveAI ? 'Powered by Google Gemini API' : 'Operational Knowledge Base & Assistant'}
                 </p>
               </div>
             </div>
             <Badge variant={isLiveAI ? 'cyan' : 'default'}>
-              {isLiveAI ? 'GEMINI LIVE' : 'AI ASSISTANT (DEMO MODE)'}
+              {isLiveAI ? 'GEMINI LIVE' : 'OPERATIONAL ASSISTANT'}
             </Badge>
           </div>
 
@@ -140,14 +140,14 @@ export const AiSuiteModule: React.FC = () => {
               onChange={(e) => setInputMsg(e.target.value)}
               className="text-xs"
             />
-            <Button variant="glow" size="sm" type="submit" icon={<Send className="w-3.5 h-3.5" />}>
+            <Button variant="primary" size="sm" type="submit" icon={<Send className="w-3.5 h-3.5" />}>
               Send
             </Button>
           </form>
         </Card>
 
         {/* Business Intelligence & Predictive Churn Card */}
-        <Card glow className="bg-gradient-to-b from-zinc-900 via-zinc-900 to-cyan-950/30 border-cyan-500/30 space-y-4">
+        <Card className="bg-zinc-900/60 border border-zinc-800 space-y-4">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-5 h-5 text-cyan-400" />
             <h3 className="text-sm font-bold text-white">AI Business Forecast</h3>
@@ -158,7 +158,7 @@ export const AiSuiteModule: React.FC = () => {
           </p>
 
           <Button
-            variant="glow"
+            variant="primary"
             size="sm"
             className="w-full"
             disabled={isReportLoading}

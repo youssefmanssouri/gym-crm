@@ -1,4 +1,4 @@
-import { User } from './types';
+import { User, SecurityAuditLog } from './types';
 import { GeneratedWorkoutPlan, GeneratedNutritionPlan } from './gemini';
 
 /**
@@ -422,4 +422,23 @@ export async function apiGetAnalytics(): Promise<AnalyticsResponse> {
   if (!res.ok) throw new Error(data.error || 'Failed to fetch analytics');
   return data;
 }
+
+// -------------------------------------------------------------
+// STAFF & AUDIT LOG PERSISTENT API HELPERS
+// -------------------------------------------------------------
+
+export async function apiGetStaff(): Promise<User[]> {
+  const res = await fetch('/api/staff', { cache: 'no-store' });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to fetch staff roster');
+  return data.staff || [];
+}
+
+export async function apiGetAuditLogs(): Promise<SecurityAuditLog[]> {
+  const res = await fetch('/api/audit-logs', { cache: 'no-store' });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to fetch audit logs');
+  return data.logs || [];
+}
+
 

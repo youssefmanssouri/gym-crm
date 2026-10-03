@@ -1,6 +1,7 @@
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 generator client {
@@ -146,6 +147,7 @@ model MemberMembership {
 
   @@index([memberId])
   @@index([status])
+  @@index([endDate])
 }
 
 model Attendance {
@@ -171,6 +173,9 @@ model Exercise {
   imageUrl     String?
   instructions String?
   createdAt    DateTime @default(now())
+
+  @@index([category])
+  @@index([muscleGroup])
 }
 
 model WorkoutPlan {
@@ -225,6 +230,8 @@ model Payment {
   description   String?
   date          DateTime          @default(now())
 
+  orderItems    OrderItem[]
+
   @@index([userId])
   @@index([date])
   @@index([status])
@@ -243,7 +250,23 @@ model Product {
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 
+  orderItems    OrderItem[]
+
   @@index([category])
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  paymentId String
+  payment   Payment  @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  quantity  Int      @default(1)
+  unitPrice Float
+  createdAt DateTime @default(now())
+
+  @@index([paymentId])
+  @@index([productId])
 }
 
 model Notification {
@@ -255,6 +278,9 @@ model Notification {
   type      String   @default("SYSTEM")
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([isRead])
 }
 
 model AuditLog {
@@ -271,4 +297,6 @@ model AuditLog {
 
   @@index([userId])
   @@index([createdAt])
+  @@index([entity])
+  @@index([action])
 }

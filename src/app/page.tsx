@@ -55,6 +55,12 @@ const SettingsModule = dynamic(
   { loading: () => <ModuleLoadingFallback /> }
 );
 
+const VALID_TABS = [
+  'dashboard', 'members', 'memberships', 'attendance',
+  'trainers', 'workouts', 'nutrition', 'payments',
+  'inventory', 'staff', 'ai-suite', 'reports', 'settings'
+];
+
 export default function GymCRMMainApp() {
   const [currentTab, setCurrentTab] = useState('dashboard');
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -62,6 +68,35 @@ export default function GymCRMMainApp() {
   const [isCheckInModalOpen, setIsCheckInModalOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [globalSearch, setGlobalSearch] = useState('');
+
+  const navigateToTab = (tab: string) => {
+    if (VALID_TABS.includes(tab)) {
+      setCurrentTab(tab);
+      if (typeof window !== 'undefined' && window.location.hash !== `#${tab}`) {
+        window.history.pushState(null, '', `#${tab}`);
+      }
+    }
+  };
+
+  useEffect(() => {
+    // Read initial tab from URL hash if present
+    const hash = window.location.hash.replace('#', '');
+    if (hash && VALID_TABS.includes(hash)) {
+      setCurrentTab(hash);
+    }
+
+    const onPopState = () => {
+      const currentHash = window.location.hash.replace('#', '');
+      if (currentHash && VALID_TABS.includes(currentHash)) {
+        setCurrentTab(currentHash);
+      } else if (!currentHash) {
+        setCurrentTab('dashboard');
+      }
+    };
+
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
 
   useEffect(() => {
     async function verifyAuth() {
@@ -107,7 +142,7 @@ export default function GymCRMMainApp() {
       {/* Sidebar Navigation */}
       <Sidebar
         currentTab={currentTab}
-        onSelectTab={setCurrentTab}
+        onSelectTab={navigateToTab}
         userRole={currentRole}
         onLogout={handleLogout}
         isMobileOpen={isMobileMenuOpen}
@@ -123,16 +158,16 @@ export default function GymCRMMainApp() {
           onToggleMobileMenu={() => setIsMobileMenuOpen((prev) => !prev)}
           onSearchQuery={(q) => {
             setGlobalSearch(q);
-            if (q.length > 2 && currentTab !== 'members') setCurrentTab('members');
+            if (q.length > 2 && currentTab !== 'members') navigateToTab('members');
           }}
         />
 
         <main className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto">
           {currentTab === 'dashboard' && (
             <DashboardModule
-              onNavigate={setCurrentTab}
+              onNavigate={navigateToTab}
               onOpenCheckIn={() => setIsCheckInModalOpen(true)}
-              onOpenAddMember={() => setCurrentTab('members')}
+              onOpenAddMember={() => navigateToTab('members')}
             />
           )}
 

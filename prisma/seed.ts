@@ -5,14 +5,38 @@ const prisma = new PrismaClient();
 
 async function main() {
   console.log('Seeding Apex Gym CRM PostgreSQL database...');
+  const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production';
+  const adminPass = process.env.ADMIN_PASSWORD;
+  const staffPass = process.env.STAFF_PASSWORD;
+  const memberPass = process.env.MEMBER_PASSWORD;
 
-  const adminPass = process.env.ADMIN_PASSWORD || 'ApexAdmin2026!';
-  const staffPass = process.env.STAFF_PASSWORD || 'ApexStaff2026!';
-  const memberPass = 'ApexMember2026!';
+  if (isProduction && (!adminPass || !staffPass || !memberPass)) {
+    throw new Error(
+      'SECURITY ERROR: Seeding in production requires explicit ADMIN_PASSWORD, STAFF_PASSWORD, and MEMBER_PASSWORD environment variables. Silent fallback credentials are strictly prohibited.'
+    );
+  }
 
-  const adminHash = bcrypt.hashSync(adminPass, 10);
-  const staffHash = bcrypt.hashSync(staffPass, 10);
-  const memberHash = bcrypt.hashSync(memberPass, 10);
+  // Local development credential resolution
+  let effectiveAdminPass = adminPass;
+  let effectiveStaffPass = staffPass;
+  let effectiveMemberPass = memberPass;
+
+  if (!effectiveAdminPass || !effectiveStaffPass || !effectiveMemberPass) {
+    if (process.env.ALLOW_DEV_CREDENTIALS === 'true' || process.env.NODE_ENV === 'development' || !process.env.NODE_ENV) {
+      console.warn('⚠️  NOTICE: Using local development credentials for seed. Set ADMIN_PASSWORD and STAFF_PASSWORD in .env for production.');
+      effectiveAdminPass = effectiveAdminPass || 'DevAdminDefaultPass!';
+      effectiveStaffPass = effectiveStaffPass || 'DevStaffDefaultPass!';
+      effectiveMemberPass = effectiveMemberPass || 'DevMemberDefaultPass!';
+    } else {
+      throw new Error(
+        'Missing seed credentials. Please provide ADMIN_PASSWORD, STAFF_PASSWORD, and MEMBER_PASSWORD environment variables, or set ALLOW_DEV_CREDENTIALS=true for intentional local development.'
+      );
+    }
+  }
+
+  const adminHash = bcrypt.hashSync(effectiveAdminPass, 10);
+  const staffHash = bcrypt.hashSync(effectiveStaffPass, 10);
+  const memberHash = bcrypt.hashSync(effectiveMemberPass, 10);
 
   // 1. Core System Accounts
   const usersToSeed = [
@@ -299,6 +323,33 @@ async function main() {
       update: prod,
       create: prod,
     });
+  }
+
+  // 5. Sample POS Retail Sale with OrderItem
+  if (memberUser) {
+    const posInvoice = 'INV-POS-2026-9901';
+    const existingPos = await prisma.payment.findUnique({ where: { invoiceNumber: posInvoice } });
+    if (!existingPos) {
+      await prisma.payment.create({
+        data: {
+          id: 'pay-pos-seed-1',
+          userId: memberUser.id,
+          amount: 64.99,
+          paymentMethod: PaymentMethod.CARD,
+          status: PaymentStatus.COMPLETED,
+          invoiceNumber: posInvoice,
+          description: 'Pro Shop POS Sale: Apex Iso-Whey 2kg (Vanilla) (x1)',
+          date: new Date('2026-08-15'),
+          orderItems: {
+            create: {
+              productId: 'prod-1',
+              quantity: 1,
+              unitPrice: 64.99,
+            },
+          },
+        },
+      });
+    }
   }
 
   console.log('Seeding completed successfully!');

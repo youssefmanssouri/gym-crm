@@ -142,7 +142,7 @@ export const ReportsModule: React.FC = () => {
       {/* Reports Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {reportsList.map((rep, idx) => (
-          <Card key={idx} glow className="p-5 flex flex-col justify-between space-y-4">
+          <Card key={idx} className="p-5 flex flex-col justify-between space-y-4">
             <div>
               <div className="flex items-center justify-between">
                 <FileText className="w-6 h-6 text-cyan-400" />

@@ -198,7 +198,7 @@ export const NutritionModule: React.FC = () => {
             Refresh
           </Button>
           <Button
-            variant="glow"
+            variant="primary"
             size="sm"
             onClick={handleSavePlan}
             disabled={isSaving || isAiLoading}
@@ -224,11 +224,11 @@ export const NutritionModule: React.FC = () => {
       )}
 
       {/* AI Nutrition Generator Banner */}
-      <Card glow className="bg-gradient-to-r from-zinc-900 via-zinc-900 to-emerald-950/40 border-emerald-500/40 p-5">
+      <Card className="bg-zinc-900/60 border border-zinc-800 p-5">
         <div className="flex items-center gap-2 mb-3">
           <Sparkles className="w-5 h-5 text-emerald-400" />
-          <h3 className="text-sm font-bold text-white">Gemini AI Diet Generator</h3>
-          <Badge variant="success">SMART MACROS</Badge>
+          <h3 className="text-sm font-bold text-white">AI Meal & Macro Planner</h3>
+          <Badge variant="success">ASSISTANT</Badge>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
@@ -252,14 +252,14 @@ export const NutritionModule: React.FC = () => {
           </div>
           <div className="flex items-end">
             <Button
-              variant="glow"
+              variant="primary"
               size="sm"
-              className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 border-emerald-400/30"
+              className="w-full"
               disabled={isAiLoading}
               onClick={handleGenerateAiDiet}
               icon={isAiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
             >
-              {isAiLoading ? 'AI Calculating...' : 'Generate Diet'}
+              {isAiLoading ? 'Calculating...' : 'Generate Diet'}
             </Button>
           </div>
         </div>
@@ -378,7 +378,7 @@ export const NutritionModule: React.FC = () => {
           {/* Action buttons */}
           <div className="pt-2 flex flex-col gap-2">
             <Button
-              variant="glow"
+              variant="primary"
               size="sm"
               className="w-full"
               disabled={isSaving}

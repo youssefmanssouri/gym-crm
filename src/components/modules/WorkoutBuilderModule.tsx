@@ -240,11 +240,11 @@ export const WorkoutBuilderModule: React.FC = () => {
       )}
 
       {/* Gemini AI Generator Banner */}
-      <Card glow className="bg-gradient-to-r from-zinc-900 via-zinc-900 to-cyan-950/40 border-cyan-500/40 p-5">
+      <Card className="bg-zinc-900/60 border border-zinc-800 p-5">
         <div className="flex items-center gap-2 mb-3">
           <Sparkles className="w-5 h-5 text-cyan-400" />
-          <h3 className="text-sm font-bold text-white">Gemini AI Workout Generator</h3>
-          <Badge variant="cyan">INSTANT AI</Badge>
+          <h3 className="text-sm font-bold text-white">AI Workout Routine Generator</h3>
+          <Badge variant="cyan">ASSISTANT</Badge>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
@@ -268,13 +268,13 @@ export const WorkoutBuilderModule: React.FC = () => {
             </select>
           </div>
           <Button
-            variant="glow"
+            variant="primary"
             size="sm"
             disabled={isAiLoading}
             onClick={handleGenerateAiWorkout}
             icon={isAiLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
           >
-            {isAiLoading ? 'AI Generating...' : 'Generate Split'}
+            {isAiLoading ? 'Generating...' : 'Generate Split'}
           </Button>
         </div>
       </Card>
@@ -344,7 +344,7 @@ export const WorkoutBuilderModule: React.FC = () => {
                 </Button>
               )}
               <Button
-                variant="glow"
+                variant="primary"
                 size="sm"
                 icon={isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
                 onClick={handleSavePlan}

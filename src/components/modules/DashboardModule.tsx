@@ -65,16 +65,15 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
   return (
     <div className="space-y-6 pb-12">
       {/* Welcome Banner & Quick Action Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-zinc-900 via-zinc-900/90 to-zinc-950 p-6 rounded-3xl border border-zinc-800 shadow-2xl relative overflow-hidden">
-        <div className="absolute right-0 top-0 w-96 h-full bg-cyan-500/5 blur-3xl rounded-full pointer-events-none" />
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-zinc-900/60 p-6 rounded-2xl border border-zinc-800 shadow-lg relative overflow-hidden">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <span className="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-            <span className="text-xs font-semibold text-cyan-400 uppercase tracking-widest">Gym Operations Center</span>
+            <span className="inline-block w-2 h-2 rounded-full bg-emerald-400" />
+            <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Gym Operations Center</span>
           </div>
-          <h2 className="text-2xl font-black tracking-tight text-white">Apex Fitness Overview</h2>
+          <h2 className="text-2xl font-bold tracking-tight text-white">Apex Fitness Overview</h2>
           <p className="text-xs text-zinc-400 mt-1 max-w-xl">
-            Facility performance benchmarks, active member check-ins, financial metrics, and operational insights.
+            Live facility metrics, active member attendance, financial performance, and operational alerts.
           </p>
         </div>
 
@@ -85,7 +84,7 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
           <Button variant="outline" size="sm" onClick={onOpenAddMember}>
             + Register Member
           </Button>
-          <Button variant="glow" size="sm" icon={<Sparkles className="w-4 h-4" />} onClick={onOpenCheckIn}>
+          <Button variant="primary" size="sm" icon={<Sparkles className="w-4 h-4" />} onClick={onOpenCheckIn}>
             Launch Check-in
           </Button>
         </div>
@@ -93,7 +92,7 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
 
       {/* Error state */}
       {error && (
-        <div className="flex items-center justify-between p-4 rounded-2xl bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs">
+        <div className="flex items-center justify-between p-4 rounded-xl bg-rose-950/40 border border-rose-500/40 text-rose-300 text-xs">
           <div className="flex items-center gap-2">
             <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
             <span>{error}</span>
@@ -119,7 +118,7 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
       {data && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Active Members */}
-          <Card glow className="relative overflow-hidden">
+          <Card className="relative overflow-hidden">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Active Members</span>
               <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
@@ -132,11 +131,11 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
                 <ArrowUpRight className="w-3.5 h-3.5" /> Active
               </span>
             </div>
-            <p className="text-[11px] text-zinc-500 mt-1">Out of {data.kpis.totalMembers} registered accounts • Club benchmark</p>
+            <p className="text-[11px] text-zinc-500 mt-1">Out of {data.kpis.totalMembers} total registered accounts</p>
           </Card>
 
           {/* Monthly Revenue */}
-          <Card glow className="relative overflow-hidden">
+          <Card className="relative overflow-hidden">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Monthly Revenue</span>
               <div className="w-9 h-9 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
@@ -149,11 +148,11 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
                 <ArrowUpRight className="w-3.5 h-3.5" /> MTD
               </span>
             </div>
-            <p className="text-[11px] text-zinc-500 mt-1">${data.kpis.weeklyRevenue.toLocaleString()} earned this week • Club benchmark</p>
+            <p className="text-[11px] text-zinc-500 mt-1">${data.kpis.weeklyRevenue.toLocaleString()} collected past 7 days</p>
           </Card>
 
           {/* Today's Check-ins */}
-          <Card glow className="relative overflow-hidden">
+          <Card className="relative overflow-hidden">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Today&apos;s Check-ins</span>
               <div className="w-9 h-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400">
@@ -164,11 +163,11 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
               <span className="text-3xl font-black text-white tracking-tight">{data.kpis.todayAttendance}</span>
               <span className="text-xs text-zinc-400 flex items-center font-medium">Logged Today</span>
             </div>
-            <p className="text-[11px] text-zinc-500 mt-1">Access terminal volume • Club benchmark</p>
+            <p className="text-[11px] text-zinc-500 mt-1">Front desk and turnstile scans today</p>
           </Card>
 
           {/* Retention & Churn */}
-          <Card glow className="relative overflow-hidden">
+          <Card className="relative overflow-hidden">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Retention Rate</span>
               <div className="w-9 h-9 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
@@ -273,29 +272,29 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
       {/* AI Business Insights & Live Check-in Activity */}
       {data && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Gemini AI Strategic Intelligence Card */}
-          <Card glow className="bg-gradient-to-br from-zinc-900 to-cyan-950/30 border-cyan-500/30 relative">
+          {/* Operational Alerts & Automated Insights Card */}
+          <Card className="bg-zinc-900/60 border border-zinc-800 relative">
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 rounded-xl bg-cyan-500/20 flex items-center justify-center text-cyan-400">
+              <div className="w-8 h-8 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
                 <Sparkles className="w-4 h-4" />
               </div>
               <div>
-                <h4 className="text-sm font-bold text-white">APEX Gemini AI Insights</h4>
-                <span className="text-[10px] text-cyan-400 font-semibold uppercase">Facility Intelligence</span>
+                <h4 className="text-sm font-bold text-white">Operational Alerts</h4>
+                <span className="text-[10px] text-zinc-400 font-semibold uppercase tracking-wider">Automated Telemetry</span>
               </div>
             </div>
 
             <div className="space-y-3 text-xs text-zinc-300">
               <div className="p-3 rounded-xl bg-zinc-900/80 border border-zinc-800">
-                <p className="font-semibold text-white">⚡ Real Membership Intelligence</p>
+                <p className="font-semibold text-white">Expiring Subscriptions</p>
                 <p className="text-[11px] font-normal text-zinc-400 mt-1">
-                  {data.kpis.expiringMemberships} members have subscriptions expiring within the next 14 days. Launch retention campaign in AI Hub.
+                  {data.kpis.expiringMemberships} members have plans expiring within 14 days. Review retention status or notify members.
                 </p>
               </div>
               <div className="p-3 rounded-xl bg-zinc-900/80 border border-zinc-800">
-                <p className="font-semibold text-white">💰 Cashflow Performance</p>
+                <p className="font-semibold text-white">Monthly Cashflow</p>
                 <p className="text-[11px] font-normal text-zinc-400 mt-1">
-                  ${data.kpis.monthlyRevenue.toLocaleString()} collected MTD across {data.kpis.activeMembers} active memberships.
+                  ${data.kpis.monthlyRevenue.toLocaleString()} recorded month-to-date across {data.kpis.activeMembers} active member accounts.
                 </p>
               </div>
             </div>
@@ -303,10 +302,10 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
             <Button
               variant="outline"
               size="sm"
-              className="w-full mt-4 border-cyan-500/30 text-cyan-400 hover:bg-cyan-950"
-              onClick={() => onNavigate('ai-suite')}
+              className="w-full mt-4 border-zinc-700 text-zinc-300 hover:text-white hover:bg-zinc-800"
+              onClick={() => onNavigate('memberships')}
             >
-              Launch AI Intelligence Hub →
+              Manage Memberships →
             </Button>
           </Card>
 

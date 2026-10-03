@@ -3,6 +3,7 @@ import { requireAuth } from '@/lib/auth-server';
 import { prisma } from '@/lib/db';
 import { updateWorkoutPlanSchema } from '@/lib/validations';
 import { WorkoutPlan } from '@/lib/types';
+import { recordAuditLog, extractClientIp } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
@@ -70,6 +71,7 @@ export async function PATCH(
 ) {
   try {
     const user = await requireAuth();
+    const ipAddress = extractClientIp(request);
     const { id } = params;
 
     const existing = await prisma.workoutPlan.findUnique({ where: { id } });
@@ -126,6 +128,14 @@ export async function PATCH(
       },
     });
 
+    await recordAuditLog({
+      actor: user,
+      action: 'UPDATE_WORKOUT',
+      entity: 'WorkoutPlan',
+      details: `Updated workout plan "${updated.title}" (ID: ${id})`,
+      ipAddress,
+    });
+
     let exercises = [];
     try {
       exercises = JSON.parse(updated.exercisesJson || '[]');
@@ -162,6 +172,7 @@ export async function DELETE(
 ) {
   try {
     const user = await requireAuth();
+    const ipAddress = extractClientIp(request);
     const { id } = params;
 
     const existing = await prisma.workoutPlan.findUnique({ where: { id } });
@@ -185,6 +196,14 @@ export async function DELETE(
     }
 
     await prisma.workoutPlan.delete({ where: { id } });
+
+    await recordAuditLog({
+      actor: user,
+      action: 'DELETE_WORKOUT',
+      entity: 'WorkoutPlan',
+      details: `Deleted workout plan "${existing.title}" (ID: ${id})`,
+      ipAddress,
+    });
 
     return NextResponse.json({ success: true, message: 'Workout plan deleted successfully' });
   } catch (error: any) {

@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth-server';
 import { prisma } from '@/lib/db';
 import { AttendanceRecord } from '@/lib/types';
-import { MOCK_ATTENDANCE } from '@/lib/mock-data';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,11 +40,10 @@ export async function GET() {
     if (error instanceof Error && error.message === 'UNAUTHORIZED') {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
-    console.warn('PostgreSQL query failed, serving verified portfolio demo attendance:', error);
-    return NextResponse.json({
-      success: true,
-      attendance: MOCK_ATTENDANCE,
-      total: MOCK_ATTENDANCE.length,
-    });
+    console.error('Failed to retrieve attendance logs from database:', error);
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable. Failed to retrieve attendance records.' },
+      { status: 500 }
+    );
   }
 }

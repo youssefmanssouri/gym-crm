@@ -3,7 +3,7 @@ import { requireAuth, requireRole } from '@/lib/auth-server';
 import { prisma } from '@/lib/db';
 import { createMemberSchema } from '@/lib/validations';
 import { MemberProfile } from '@/lib/types';
-import { MOCK_MEMBERS } from '@/lib/mock-data';
+import { recordAuditLog, extractClientIp } from '@/lib/audit';
 import bcrypt from 'bcryptjs';
 
 export const dynamic = 'force-dynamic';
@@ -100,18 +100,18 @@ export async function GET() {
         return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
       }
     }
-    console.warn('PostgreSQL query failed, serving verified portfolio demo members:', error);
-    return NextResponse.json({
-      success: true,
-      members: MOCK_MEMBERS,
-      total: MOCK_MEMBERS.length,
-    });
+    console.error('Failed to retrieve members from database:', error);
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable. Failed to retrieve member directory.' },
+      { status: 500 }
+    );
   }
 }
 
 export async function POST(request: Request) {
   try {
-    await requireRole(['ADMIN', 'MANAGER', 'RECEPTIONIST']);
+    const authUser = await requireRole(['ADMIN', 'MANAGER', 'RECEPTIONIST']);
+    const ipAddress = extractClientIp(request);
 
     const body = await request.json().catch(() => null);
     const parsed = createMemberSchema.safeParse(body);
@@ -164,7 +164,6 @@ export async function POST(request: Request) {
 
     // Generate collision-resistant unique QR code
     const uniqueQr = `APEX-M-${Date.now().toString(36).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
-    const randomAvatar = `https://images.unsplash.com/photo-${1534528741775 + Math.floor(Math.random() * 1000)}?auto=format&fit=crop&w=300&q=80`;
     const defaultMemberPassword = bcrypt.hashSync('ApexMember2026!', 10);
 
     const now = new Date();
@@ -178,7 +177,7 @@ export async function POST(request: Request) {
           passwordHash: defaultMemberPassword,
           name,
           phone,
-          avatar: randomAvatar,
+          avatar: null,
           role: 'MEMBER',
           status: 'ACTIVE',
         },
@@ -226,6 +225,15 @@ export async function POST(request: Request) {
           description: `Initial Registration & ${plan.name} Membership Fee`,
           date: now,
         },
+      });
+
+      await recordAuditLog({
+        actor: authUser,
+        action: 'CREATE_MEMBER',
+        entity: 'Member',
+        details: `Created new member ${name} (${email.toLowerCase()}) with ${plan.name} membership. Profile ID: ${profile.id}`,
+        ipAddress,
+        tx,
       });
 
       return {

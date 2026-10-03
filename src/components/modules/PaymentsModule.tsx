@@ -114,7 +114,7 @@ export const PaymentsModule: React.FC = () => {
           <Button variant="outline" size="sm" icon={<Download className="w-4 h-4" />} onClick={handleExportCSV}>
             Export CSV
           </Button>
-          <Button variant="glow" size="sm" icon={<Plus className="w-4 h-4" />} onClick={() => setIsNewPaymentModalOpen(true)}>
+          <Button variant="primary" size="sm" icon={<Plus className="w-4 h-4" />} onClick={() => setIsNewPaymentModalOpen(true)}>
             + Record Payment
           </Button>
         </div>
@@ -122,21 +122,21 @@ export const PaymentsModule: React.FC = () => {
 
       {/* Financial Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card glow className="p-4">
+        <Card className="p-4">
           <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Total Revenue Processed</span>
           <div className="text-2xl font-black text-white mt-1">
             ${aggregates.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <span className="text-[11px] text-emerald-400 font-semibold">Active ledger total</span>
         </Card>
-        <Card glow className="p-4">
+        <Card className="p-4">
           <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Pending Automated Debits</span>
           <div className="text-2xl font-black text-amber-400 mt-1">
             ${aggregates.pendingAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <span className="text-[11px] text-zinc-500">Unsettled / queued subscriptions</span>
         </Card>
-        <Card glow className="p-4">
+        <Card className="p-4">
           <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">Refund Rate</span>
           <div className="text-2xl font-black text-white mt-1">{aggregates.refundRate}</div>
           <span className="text-[11px] text-emerald-400 font-semibold">Low risk indicator</span>
@@ -231,7 +231,7 @@ export const PaymentsModule: React.FC = () => {
 
           <div className="pt-4 flex items-center justify-end gap-3 border-t border-zinc-800">
             <Button variant="ghost" type="button" onClick={() => setIsNewPaymentModalOpen(false)}>Cancel</Button>
-            <Button variant="glow" type="submit" disabled={isSubmitting}>
+            <Button variant="primary" type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Recording...' : 'Complete & Record'}
             </Button>
           </div>

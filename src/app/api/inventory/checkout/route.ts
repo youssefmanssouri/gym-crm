@@ -2,11 +2,12 @@ import { NextResponse } from 'next/server';
 import { requireRole } from '@/lib/auth-server';
 import { prisma } from '@/lib/db';
 import { checkoutProductSchema } from '@/lib/validations';
-import { MOCK_PRODUCTS } from '@/lib/mock-data';
+import { recordAuditLog, extractClientIp } from '@/lib/audit';
 
 export async function POST(request: Request) {
   try {
     const authStaff = await requireRole(['ADMIN', 'MANAGER', 'RECEPTIONIST']);
+    const ipAddress = extractClientIp(request);
 
     const body = await request.json().catch(() => null);
     const parsed = checkoutProductSchema.safeParse(body);
@@ -54,7 +55,23 @@ export async function POST(request: Request) {
             invoiceNumber,
             description: `Pro Shop POS Sale: ${product.name} (x${quantity})`,
             date: new Date(),
+            orderItems: {
+              create: {
+                productId: product.id,
+                quantity,
+                unitPrice: product.price,
+              },
+            },
           },
+        });
+
+        await recordAuditLog({
+          actor: authStaff,
+          action: 'POS_CHECKOUT',
+          entity: 'Product',
+          details: `Sold ${quantity} unit(s) of "${product.name}" (SKU: ${product.sku}) for $${totalSaleAmount}. Invoice: ${invoiceNumber}`,
+          ipAddress,
+          tx,
         });
 
         return {
@@ -80,7 +97,6 @@ export async function POST(request: Request) {
         invoiceNumber: result.payment.invoiceNumber,
       });
     } catch (dbError: unknown) {
-      // Re-throw specific business logic errors
       if (dbError instanceof Error) {
         if (dbError.message === 'NOT_FOUND') {
           return NextResponse.json({ success: false, error: 'Product not found' }, { status: 404 });
@@ -90,34 +106,11 @@ export async function POST(request: Request) {
         }
       }
 
-      // If database is unreachable in demo mode, execute deterministic demo checkout
-      console.warn('Database unavailable for POS checkout, executing verified demo checkout:', dbError);
-      const mockProduct = MOCK_PRODUCTS.find((p) => p.id === productId);
-
-      if (!mockProduct) {
-        return NextResponse.json({ success: false, error: 'Product not found' }, { status: 404 });
-      }
-
-      if (mockProduct.stockQuantity < quantity) {
-        return NextResponse.json(
-          { success: false, error: `INSUFFICIENT_STOCK: Only ${mockProduct.stockQuantity} units available.` },
-          { status: 400 }
-        );
-      }
-
-      const updatedStock = Math.max(0, mockProduct.stockQuantity - quantity);
-      const invoiceNumber = `INV-POS-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`;
-
-      return NextResponse.json({
-        success: true,
-        message: `Sold ${quantity} unit(s) of ${mockProduct.name}. Stock is now ${updatedStock}.`,
-        product: {
-          ...mockProduct,
-          stockQuantity: updatedStock,
-        },
-        invoiceNumber,
-        isDemoMode: true,
-      });
+      console.error('POS checkout database transaction failed:', dbError);
+      return NextResponse.json(
+        { success: false, error: 'Database transaction error: POS checkout could not be completed.' },
+        { status: 500 }
+      );
     }
   } catch (error: unknown) {
     if (error instanceof Error) {

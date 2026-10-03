@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { User } from '@/lib/types';
 import { Badge } from '../ui/Badge';
+import { Avatar } from '../ui/Avatar';
 
 interface HeaderProps {
   currentUser: User;
@@ -240,13 +241,7 @@ export const Header: React.FC<HeaderProps> = ({
             aria-expanded={showUserMenu}
             className="flex items-center gap-2.5 bg-zinc-900 hover:bg-zinc-800/80 border border-zinc-800 px-3 py-1.5 rounded-xl transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
           >
-            <Image
-              src={currentUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80'}
-              alt={currentUser.name}
-              width={24}
-              height={24}
-              className="w-6 h-6 rounded-full object-cover border border-zinc-700"
-            />
+            <Avatar src={currentUser.avatar} name={currentUser.name} size="sm" />
             <div className="text-left hidden md:block">
               <p className="text-xs font-semibold text-white leading-tight">{currentUser.name}</p>
               <p className="text-[10px] text-zinc-400 font-mono leading-tight">{currentUser.role}</p>
@@ -257,13 +252,7 @@ export const Header: React.FC<HeaderProps> = ({
           {showUserMenu && (
             <div className="absolute right-0 mt-2 w-64 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl p-3 z-40 space-y-3">
               <div className="flex items-center gap-3 pb-3 border-b border-zinc-800">
-                <Image
-                  src={currentUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80'}
-                  alt={currentUser.name}
-                  width={40}
-                  height={40}
-                  className="w-10 h-10 rounded-xl object-cover border border-zinc-700"
-                />
+                <Avatar src={currentUser.avatar} name={currentUser.name} size="md" />
                 <div className="overflow-hidden">
                   <p className="text-xs font-bold text-white truncate">{currentUser.name}</p>
                   <p className="text-[10px] text-zinc-400 truncate">{currentUser.email}</p>

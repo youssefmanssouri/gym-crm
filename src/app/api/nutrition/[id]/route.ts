@@ -3,6 +3,7 @@ import { requireAuth } from '@/lib/auth-server';
 import { prisma } from '@/lib/db';
 import { updateNutritionPlanSchema } from '@/lib/validations';
 import { NutritionPlan } from '@/lib/types';
+import { recordAuditLog, extractClientIp } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
@@ -70,6 +71,7 @@ export async function PATCH(
 ) {
   try {
     const user = await requireAuth();
+    const ipAddress = extractClientIp(request);
     const { id } = params;
 
     const existing = await prisma.nutritionPlan.findUnique({ where: { id } });
@@ -125,6 +127,14 @@ export async function PATCH(
       },
     });
 
+    await recordAuditLog({
+      actor: user,
+      action: 'UPDATE_NUTRITION',
+      entity: 'NutritionPlan',
+      details: `Updated nutrition plan "${updated.title}" (ID: ${id})`,
+      ipAddress,
+    });
+
     let categories = [];
     try {
       categories = JSON.parse(updated.mealsJson || '[]');
@@ -162,6 +172,7 @@ export async function DELETE(
 ) {
   try {
     const user = await requireAuth();
+    const ipAddress = extractClientIp(request);
     const { id } = params;
 
     const existing = await prisma.nutritionPlan.findUnique({ where: { id } });
@@ -185,6 +196,14 @@ export async function DELETE(
     }
 
     await prisma.nutritionPlan.delete({ where: { id } });
+
+    await recordAuditLog({
+      actor: user,
+      action: 'DELETE_NUTRITION',
+      entity: 'NutritionPlan',
+      details: `Deleted nutrition plan "${existing.title}" (ID: ${id})`,
+      ipAddress,
+    });
 
     return NextResponse.json({ success: true, message: 'Nutrition plan deleted successfully' });
   } catch (error: any) {

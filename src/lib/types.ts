@@ -130,6 +130,16 @@ export interface NutritionPlan {
   createdAt: string;
 }
 
+export interface OrderItemRecord {
+  id: string;
+  paymentId: string;
+  productId: string;
+  productName?: string;
+  quantity: number;
+  unitPrice: number;
+  createdAt: string;
+}
+
 export interface PaymentRecord {
   id: string;
   userId: string;
@@ -142,6 +152,7 @@ export interface PaymentRecord {
   invoiceNumber: string;
   description: string;
   date: string;
+  orderItems?: OrderItemRecord[];
 }
 
 export interface ProductItem {

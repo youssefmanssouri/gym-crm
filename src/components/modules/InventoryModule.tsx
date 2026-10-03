@@ -118,7 +118,7 @@ export const InventoryModule: React.FC = () => {
           <Button variant="outline" size="sm" icon={<RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />} onClick={loadInventory}>
             Refresh Stock
           </Button>
-          <Button variant="glow" size="sm" icon={<Plus className="w-4 h-4" />} onClick={() => setIsAddModalOpen(true)}>
+          <Button variant="primary" size="sm" icon={<Plus className="w-4 h-4" />} onClick={() => setIsAddModalOpen(true)}>
             + Add Product to Stock
           </Button>
         </div>
@@ -183,7 +183,7 @@ export const InventoryModule: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredProducts.map((prod) => (
-            <Card key={prod.id} glow className="flex flex-col justify-between p-5">
+            <Card key={prod.id} className="flex flex-col justify-between p-5">
               <div>
                 <div className="flex items-start justify-between">
                   <div>
@@ -197,8 +197,8 @@ export const InventoryModule: React.FC = () => {
                 <div className="mt-4 p-3 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-between text-xs">
                   <span className="text-zinc-400">Stock Quantity:</span>
                   <span
-                    className={`font-bold font-mono ${
-                      prod.stockQuantity <= prod.minStockLevel ? 'text-rose-400 animate-pulse' : 'text-emerald-400'
+                    className={`font-semibold font-mono ${
+                      prod.stockQuantity <= prod.minStockLevel ? 'text-rose-400' : 'text-emerald-400'
                     }`}
                   >
                     {prod.stockQuantity} units left
@@ -209,7 +209,7 @@ export const InventoryModule: React.FC = () => {
               <div className="mt-5 pt-3 border-t border-zinc-800 flex items-center justify-between">
                 <span className="text-[10px] text-zinc-500">Cost: ${prod.costPrice.toFixed(2)}</span>
                 <Button
-                  variant="glow"
+                  variant="primary"
                   size="sm"
                   icon={sellingId === prod.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ShoppingCart className="w-3.5 h-3.5" />}
                   onClick={() => handlePOSCheckout(prod)}
@@ -250,7 +250,7 @@ export const InventoryModule: React.FC = () => {
 
           <div className="pt-4 flex items-center justify-end gap-3 border-t border-zinc-800">
             <Button variant="ghost" type="button" onClick={() => setIsAddModalOpen(false)}>Cancel</Button>
-            <Button variant="glow" type="submit" disabled={isSubmitting}>
+            <Button variant="primary" type="submit" disabled={isSubmitting}>
               {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Publish to POS'}
             </Button>
           </div>

@@ -1,7 +1,6 @@
 import { cookies } from 'next/headers';
 import crypto from 'crypto';
 import { UserRole, User } from './types';
-import { MOCK_USERS } from './mock-data';
 
 export const SESSION_COOKIE_NAME = 'apex_gym_session';
 const SESSION_DURATION_SECONDS = 7 * 24 * 60 * 60; // 7 days
@@ -158,65 +157,38 @@ export async function authenticateCredentials(
   const email = emailInput.trim().toLowerCase();
   const password = passwordInput.trim();
 
+  let dbUser;
   try {
-    const dbUser = await prisma.user.findUnique({
+    dbUser = await prisma.user.findUnique({
       where: { email },
     });
-
-    if (dbUser) {
-      // Must be ACTIVE
-      if (dbUser.status !== 'ACTIVE') {
-        return null;
-      }
-
-      // Verify bcrypt hash
-      const isValid = bcrypt.compareSync(password, dbUser.passwordHash);
-      if (isValid) {
-        return {
-          id: dbUser.id,
-          email: dbUser.email,
-          name: dbUser.name,
-          role: dbUser.role as UserRole,
-          avatar: dbUser.avatar || undefined,
-          status: dbUser.status,
-          phone: dbUser.phone || undefined,
-        };
-      }
-      return null;
-    }
   } catch (err) {
-    console.error('Database authentication error, checking server fallback:', err);
+    console.error('Database authentication error:', err);
+    throw new Error('Database service unavailable. Please try again.');
   }
 
-  // Fallback to configured in-memory accounts if DB is initializing
-  const matchingKey = Object.keys(MOCK_USERS).find(
-    (key) => MOCK_USERS[key].email.toLowerCase() === email
-  );
-
-  if (!matchingKey) return null;
-
-  const user = MOCK_USERS[matchingKey];
-  const adminPassword = process.env.ADMIN_PASSWORD || 'ApexAdmin2026!';
-  const staffPassword = process.env.STAFF_PASSWORD || 'ApexStaff2026!';
-
-  let expectedPassword = staffPassword;
-  if (user.role === 'ADMIN') {
-    expectedPassword = adminPassword;
+  if (!dbUser) {
+    return null;
   }
 
-  const passBuf = Buffer.from(password, 'utf8');
-  const expectedBuf = Buffer.from(expectedPassword, 'utf8');
+  // Must be ACTIVE
+  if (dbUser.status !== 'ACTIVE') {
+    return null;
+  }
 
-  if (passBuf.length !== expectedBuf.length) return null;
-  if (!crypto.timingSafeEqual(passBuf, expectedBuf)) return null;
+  // Verify bcrypt hash
+  const isValid = bcrypt.compareSync(password, dbUser.passwordHash);
+  if (!isValid) {
+    return null;
+  }
 
   return {
-    id: user.id,
-    email: user.email,
-    name: user.name,
-    role: user.role,
-    avatar: user.avatar,
-    status: user.status,
-    phone: user.phone,
+    id: dbUser.id,
+    email: dbUser.email,
+    name: dbUser.name,
+    role: dbUser.role as UserRole,
+    avatar: dbUser.avatar || undefined,
+    status: dbUser.status,
+    phone: dbUser.phone || undefined,
   };
 }

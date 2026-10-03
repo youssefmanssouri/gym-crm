@@ -3,7 +3,7 @@ import { requireAuth, requireRole } from '@/lib/auth-server';
 import { prisma } from '@/lib/db';
 import { createProductSchema } from '@/lib/validations';
 import { ProductItem } from '@/lib/types';
-import { MOCK_PRODUCTS } from '@/lib/mock-data';
+import { recordAuditLog, extractClientIp } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
@@ -36,18 +36,18 @@ export async function GET() {
     if (error instanceof Error && error.message === 'UNAUTHORIZED') {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
-    console.warn('PostgreSQL query failed, serving verified portfolio demo inventory:', error);
-    return NextResponse.json({
-      success: true,
-      products: MOCK_PRODUCTS,
-      total: MOCK_PRODUCTS.length,
-    });
+    console.error('Failed to retrieve inventory catalog from database:', error);
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable. Failed to retrieve inventory catalog.' },
+      { status: 500 }
+    );
   }
 }
 
 export async function POST(request: Request) {
   try {
-    await requireRole(['ADMIN', 'MANAGER']);
+    const authUser = await requireRole(['ADMIN', 'MANAGER']);
+    const ipAddress = extractClientIp(request);
 
     const body = await request.json().catch(() => null);
     const parsed = createProductSchema.safeParse(body);
@@ -84,6 +84,14 @@ export async function POST(request: Request) {
         minStockLevel,
         supplier,
       },
+    });
+
+    await recordAuditLog({
+      actor: authUser,
+      action: 'CREATE_PRODUCT',
+      entity: 'Product',
+      details: `Created product "${product.name}" (SKU: ${product.sku}, Stock: ${product.stockQuantity}, Price: $${product.price}, ID: ${product.id})`,
+      ipAddress,
     });
 
     const formatted: ProductItem = {

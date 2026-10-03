@@ -3,7 +3,7 @@ import { requireAuth } from '@/lib/auth-server';
 import { prisma } from '@/lib/db';
 import { createNutritionPlanSchema } from '@/lib/validations';
 import { NutritionPlan } from '@/lib/types';
-import { MOCK_NUTRITION_PLANS } from '@/lib/mock-data';
+import { recordAuditLog, extractClientIp } from '@/lib/audit';
 
 export const dynamic = 'force-dynamic';
 
@@ -55,14 +55,18 @@ export async function GET() {
     if (error.message === 'UNAUTHORIZED') {
       return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
     }
-    console.warn('PostgreSQL query failed, serving verified portfolio demo nutrition plans:', error?.message || error);
-    return NextResponse.json({ success: true, plans: MOCK_NUTRITION_PLANS });
+    console.error('Failed to retrieve nutrition plans from database:', error);
+    return NextResponse.json(
+      { success: false, error: 'Database service unavailable. Failed to retrieve nutrition plans.' },
+      { status: 500 }
+    );
   }
 }
 
 export async function POST(request: Request) {
   try {
     const user = await requireAuth();
+    const ipAddress = extractClientIp(request);
 
     const body = await request.json().catch(() => null);
     if (!body || typeof body !== 'object') {
@@ -106,6 +110,14 @@ export async function POST(request: Request) {
         createdBy: { select: { id: true, name: true } },
         assignedTo: { select: { id: true, name: true } },
       },
+    });
+
+    await recordAuditLog({
+      actor: user,
+      action: 'CREATE_NUTRITION',
+      entity: 'NutritionPlan',
+      details: `Created nutrition plan "${created.title}" (Calories: ${created.dailyCalories}, ID: ${created.id})`,
+      ipAddress,
     });
 
     return NextResponse.json(

@@ -28,8 +28,8 @@ import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { Badge } from '../ui/Badge';
 import { Modal } from '../ui/Modal';
+import { Avatar } from '../ui/Avatar';
 import { MemberProfile, MembershipPlan } from '@/lib/types';
-import { MOCK_MEMBERSHIP_PLANS } from '@/lib/mock-data';
 import { exportToCSV } from '@/lib/export-utils';
 import { apiGetMembers, apiCreateMember, apiDeleteMember, apiGetPlans } from '@/lib/api-client';
 
@@ -39,7 +39,7 @@ interface MembersModuleProps {
 
 export const MembersModule: React.FC<MembersModuleProps> = ({ initialSearch = '' }) => {
   const [members, setMembers] = useState<MemberProfile[]>([]);
-  const [plans, setPlans] = useState<MembershipPlan[]>(MOCK_MEMBERSHIP_PLANS);
+  const [plans, setPlans] = useState<MembershipPlan[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -56,14 +56,14 @@ export const MembersModule: React.FC<MembersModuleProps> = ({ initialSearch = ''
   const [newHeight, setNewHeight] = useState('175');
   const [newWeight, setNewWeight] = useState('75');
   const [newGoal, setNewGoal] = useState('Strength & Muscle Gain');
-  const [selectedPlanId, setSelectedPlanId] = useState('plan-quarterly');
+  const [selectedPlanId, setSelectedPlanId] = useState('');
 
   const loadData = async () => {
     setIsLoading(true);
     try {
       const [membersData, plansData] = await Promise.all([
         apiGetMembers().catch(() => []),
-        apiGetPlans().catch(() => MOCK_MEMBERSHIP_PLANS),
+        apiGetPlans().catch(() => []),
       ]);
       setMembers(membersData);
       if (plansData.length > 0) {
@@ -163,7 +163,7 @@ export const MembersModule: React.FC<MembersModuleProps> = ({ initialSearch = ''
           <Button variant="outline" size="sm" icon={<Download className="w-4 h-4" />} onClick={handleExportCSV}>
             Export CSV
           </Button>
-          <Button variant="glow" size="sm" icon={<Plus className="w-4 h-4" />} onClick={() => setIsAddModalOpen(true)}>
+          <Button variant="primary" size="sm" icon={<Plus className="w-4 h-4" />} onClick={() => setIsAddModalOpen(true)}>
             + Register New Member
           </Button>
         </div>
@@ -218,18 +218,12 @@ export const MembersModule: React.FC<MembersModuleProps> = ({ initialSearch = ''
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredMembers.map((member) => (
-          <Card key={member.id} glow className="flex flex-col justify-between p-5 relative group">
+          <Card key={member.id} className="flex flex-col justify-between p-5 relative group">
             <div>
               {/* Member Header */}
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">
-                  <Image
-                    src={member.user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80'}
-                    alt={member.user.name}
-                    width={48}
-                    height={48}
-                    className="w-12 h-12 rounded-2xl object-cover border border-zinc-700"
-                  />
+                  <Avatar src={member.user.avatar} name={member.user.name} size="lg" />
                   <div>
                     <h4 className="text-sm font-bold text-white group-hover:text-cyan-400 transition-colors">{member.user.name}</h4>
                     <p className="text-xs text-zinc-400">{member.user.email}</p>
@@ -294,13 +288,7 @@ export const MembersModule: React.FC<MembersModuleProps> = ({ initialSearch = ''
           <div className="space-y-6">
             {/* Header Bio */}
             <div className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-2xl bg-zinc-950 border border-zinc-800">
-              <Image
-                src={selectedMember.user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80'}
-                alt={selectedMember.user.name}
-                width={80}
-                height={80}
-                className="w-20 h-20 rounded-2xl object-cover border-2 border-cyan-500/40"
-              />
+              <Avatar src={selectedMember.user.avatar} name={selectedMember.user.name} size="xl" />
               <div className="flex-1 text-center sm:text-left space-y-1">
                 <div className="flex items-center justify-center sm:justify-start gap-2">
                   <h3 className="text-xl font-bold text-white">{selectedMember.user.name}</h3>
@@ -387,7 +375,7 @@ export const MembersModule: React.FC<MembersModuleProps> = ({ initialSearch = ''
 
           <div className="pt-4 flex items-center justify-end gap-3 border-t border-zinc-800">
             <Button variant="ghost" type="button" onClick={() => setIsAddModalOpen(false)}>Cancel</Button>
-            <Button variant="glow" type="submit" disabled={isSubmitting}>
+            <Button variant="primary" type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Registering...' : 'Create Account & Pass'}
             </Button>
           </div>
