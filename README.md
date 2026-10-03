@@ -35,12 +35,12 @@ Fitness facilities require coordinated front-desk attendance verification, membe
 2. **Member CRM**: Searchable member directory with status filters (`ACTIVE`, `INACTIVE`, `EXPIRED`, `FROZEN`), weight goal tracking, and digital QR passes.
 3. **Membership Plans & Assignment**: Configurable subscription tiers, promo discount engine, and direct member plan assignment workflow.
 4. **Attendance Access Terminal**: Front-desk QR code verification terminal with real-time pass validation and access logs.
-5. **Trainer Hub & Workout Builder**: Multi-exercise routine builder (sets, reps, rest intervals) with Google Gemini AI routine generation and smart fallbacks.
+5. **Workouts & Routines**: Multi-exercise routine builder (sets, reps, rest intervals) with Google Gemini AI routine generation and smart fallbacks.
 6. **Nutrition Protocol Builder**: Macro-balanced dietary planner (protein, carbohydrates, fats) matched to target caloric requirements with meal scheduling.
 7. **Payments & Billing**: Transaction ledger with invoice numbers (`INV-YYYY-XXXXX`), payment methods, printable receipts, and dynamic aggregates.
 8. **Inventory & Point-of-Sale (POS)**: Supplement and merchandise catalog, stock level monitoring, low-stock warnings, and transactional POS checkout.
 9. **Staff Directory & Security Audit Trail**: Staff management across 5 roles (`ADMIN`, `MANAGER`, `TRAINER`, `RECEPTIONIST`, `MEMBER`) and system audit logs.
-10. **AI Intelligence Suite**: Conversational fitness assistant, predictive retention modeling, and strategic revenue recommendations.
+10. **AI Assistant & Intelligence**: Conversational fitness assistant, predictive retention modeling, and strategic revenue recommendations.
 11. **Reports & Analytics**: One-click sanitized CSV exports for financial ledgers, member directories, and facility attendance logs.
 12. **System Settings**: Facility branding, operating hours, and sales tax rate configuration.
 

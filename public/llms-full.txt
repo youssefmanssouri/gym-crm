@@ -39,7 +39,7 @@ Apex Fitness CRM is engineered to demonstrate high technical standards in modern
 - **Status Checks:** Gracefully grants access to active accounts while actively rejecting expired, frozen, or non-existent passes.
 - **Access Log:** Chronological table displaying member avatar, timestamp, verification method, and staff approver.
 
-### Module 5: Trainer Hub & Workout Builder
+### Module 5: Workouts & Routines
 - **Routine Editor:** Custom exercise entries including sets, reps, rest intervals (seconds), and execution instructions.
 - **AI Program Generation:** Integrated Gemini AI endpoint to generate split routines based on user experience level and target goal (`Hypertrophy`, `Strength`, `Fat Loss`).
 - **Smart Fallback:** Intelligent algorithmic generator providing structured workouts when AI credentials are not provided.
@@ -61,7 +61,7 @@ Apex Fitness CRM is engineered to demonstrate high technical standards in modern
 - **Staff Roster:** Directory of trainers, managers, receptionists, and administrators with role badges and contact info.
 - **Security Audit Logs:** Chronological record of administrative operations, login sessions, and permission assignments.
 
-### Module 10: AI Intelligence Suite
+### Module 10: AI Assistant & Intelligence
 - **Fitness Assistant:** Interactive conversational agent providing scientifically grounded exercise and nutrition recommendations.
 - **Predictive Churn & Business Insights:** Analyzes facility KPIs to deliver tactical bullet points for revenue expansion, retention safeguards, and class scheduling.
 - **Transparent Status:** Displays `GEMINI LIVE` when connected to live Google APIs and `AI ASSISTANT (DEMO MODE)` with intelligent heuristics when offline.

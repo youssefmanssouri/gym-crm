@@ -38,6 +38,15 @@ async function main() {
     console.log('[SEED] Administrator account already exists.');
   }
 
+  // Ensure legacy Unsplash placeholder URLs are cleaned
+  const cleanedAvatars = await prisma.user.updateMany({
+    where: { avatar: { contains: 'unsplash' } },
+    data: { avatar: null },
+  });
+  if (cleanedAvatars.count > 0) {
+    console.log(`[SEED] Cleaned ${cleanedAvatars.count} legacy Unsplash avatar URLs in cloud database.`);
+  }
+
   // Ensure standard plans exist
   const plans = [
     {

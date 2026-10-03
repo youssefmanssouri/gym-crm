@@ -82,7 +82,7 @@ export const AiSuiteModule: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-extrabold text-white tracking-tight flex items-center gap-2">
-            APEX AI Intelligence Suite <Sparkles className="w-5 h-5 text-cyan-400" />
+            APEX AI Assistant & Intelligence <Sparkles className="w-5 h-5 text-cyan-400" />
           </h2>
           <p className="text-xs text-zinc-400 mt-1">AI Fitness Assistant, Predictive Churn Modeling, and Strategic Revenue Insights.</p>
         </div>

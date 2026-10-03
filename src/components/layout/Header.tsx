@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import Image from 'next/image';
 import {
   Search,
   Bell,
   ChevronDown,
   Sparkles,
   CheckCircle2,
+  AlertTriangle,
+  Package,
   LogOut,
   Sun,
   Moon,
@@ -29,6 +30,13 @@ interface HeaderProps {
 
 export type ThemeMode = 'dark' | 'light' | 'system';
 
+interface OperationalAlert {
+  id: string;
+  type: 'expiration' | 'inventory' | 'attendance';
+  title: string;
+  detail: string;
+}
+
 export const Header: React.FC<HeaderProps> = ({
   currentUser,
   onOpenCheckIn,
@@ -41,6 +49,8 @@ export const Header: React.FC<HeaderProps> = ({
   const [showThemeMenu, setShowThemeMenu] = useState(false);
   const [theme, setTheme] = useState<ThemeMode>('dark');
   const [searchVal, setSearchVal] = useState('');
+  const [alerts, setAlerts] = useState<OperationalAlert[]>([]);
+  const [isLoadingAlerts, setIsLoadingAlerts] = useState(false);
 
   const themeMenuRef = useRef<HTMLDivElement>(null);
   const notificationsRef = useRef<HTMLDivElement>(null);
@@ -100,6 +110,79 @@ export const Header: React.FC<HeaderProps> = ({
     mediaQuery.addEventListener('change', handleSystemChange);
     return () => mediaQuery.removeEventListener('change', handleSystemChange);
   }, [theme]);
+
+  // Fetch real dynamic operational alerts from analytics and inventory
+  useEffect(() => {
+    let isMounted = true;
+    async function loadAlerts() {
+      setIsLoadingAlerts(true);
+      try {
+        const [analyticsRes, inventoryRes] = await Promise.allSettled([
+          fetch('/api/analytics'),
+          fetch('/api/inventory'),
+        ]);
+
+        const newAlerts: OperationalAlert[] = [];
+
+        if (analyticsRes.status === 'fulfilled' && analyticsRes.value.ok) {
+          const analyticsData = await analyticsRes.value.json();
+          if (analyticsData.success) {
+            const expiring = analyticsData.activity?.expiringMembers || [];
+            expiring.slice(0, 3).forEach((item: { id: string; name: string; plan: string; expiresIn: number }) => {
+              newAlerts.push({
+                id: `exp-${item.id}`,
+                type: 'expiration',
+                title: 'Membership Expiring Soon',
+                detail: `${item.name} (${item.plan}) expires in ${item.expiresIn} day${item.expiresIn === 1 ? '' : 's'}.`,
+              });
+            });
+
+            const attendance = analyticsData.activity?.recentAttendance || [];
+            attendance.slice(0, 2).forEach((item: { id: string; userName: string; checkInTime: string; method: string }) => {
+              newAlerts.push({
+                id: `att-${item.id}`,
+                type: 'attendance',
+                title: 'Recent Facility Access',
+                detail: `${item.userName} checked in at ${item.checkInTime} via ${item.method || 'Pass'}.`,
+              });
+            });
+          }
+        }
+
+        if (inventoryRes.status === 'fulfilled' && inventoryRes.value.ok) {
+          const inventoryData = await inventoryRes.value.json();
+          if (inventoryData.success && Array.isArray(inventoryData.products)) {
+            const lowStock = inventoryData.products
+              .filter((p: { stockQuantity: number; minStockLevel: number }) => p.stockQuantity <= p.minStockLevel)
+              .slice(0, 2);
+            lowStock.forEach((p: { id: string; name: string; stockQuantity: number; minStockLevel: number }) => {
+              newAlerts.push({
+                id: `inv-${p.id}`,
+                type: 'inventory',
+                title: 'Low Inventory Alert',
+                detail: `${p.name}: ${p.stockQuantity} remaining (min threshold: ${p.minStockLevel}).`,
+              });
+            });
+          }
+        }
+
+        if (isMounted) {
+          setAlerts(newAlerts);
+        }
+      } catch (err) {
+        console.error('Failed to load operational alerts:', err);
+      } finally {
+        if (isMounted) {
+          setIsLoadingAlerts(false);
+        }
+      }
+    }
+
+    loadAlerts();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const themeOptions: { mode: ThemeMode; label: string; icon: React.ReactNode }[] = [
     { mode: 'light', label: 'Light', icon: <Sun className="w-4 h-4 text-amber-400" /> },
@@ -202,31 +285,56 @@ export const Header: React.FC<HeaderProps> = ({
             className="p-2 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900 rounded-xl transition-colors relative focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
           >
             <Bell className="w-4 h-4" />
-            <span className="w-2 h-2 rounded-full bg-cyan-400 absolute top-2 right-2 animate-ping" />
-            <span className="w-2 h-2 rounded-full bg-cyan-400 absolute top-2 right-2" />
+            {alerts.length > 0 && (
+              <>
+                <span className="w-2 h-2 rounded-full bg-cyan-400 absolute top-2 right-2 animate-ping" />
+                <span className="w-2 h-2 rounded-full bg-cyan-400 absolute top-2 right-2" />
+              </>
+            )}
           </button>
 
           {showNotifications && (
             <div className="absolute right-0 mt-2 w-80 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl p-4 z-40">
               <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
-                <span className="text-xs font-bold text-white uppercase tracking-wider">System Notifications</span>
-                <span className="text-[10px] text-cyan-400 bg-cyan-950 px-2 py-0.5 rounded-full border border-cyan-800">3 New</span>
+                <span className="text-xs font-bold text-white uppercase tracking-wider">Operational Alerts</span>
+                {alerts.length > 0 ? (
+                  <span className="text-[10px] text-cyan-400 bg-cyan-950 px-2 py-0.5 rounded-full border border-cyan-800">
+                    {alerts.length} New
+                  </span>
+                ) : (
+                  <span className="text-[10px] text-zinc-500 bg-zinc-800/80 px-2 py-0.5 rounded-full border border-zinc-700">
+                    0 New
+                  </span>
+                )}
               </div>
-              <div className="mt-3 space-y-3.5">
-                <div className="flex items-start gap-3 text-xs">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-zinc-200">Emily Watson VIP Renewal</p>
-                    <p className="text-[11px] text-zinc-400">$599.00 processed successfully via Card.</p>
+              <div className="mt-3 space-y-3.5 max-h-72 overflow-y-auto pr-1">
+                {isLoadingAlerts ? (
+                  <div className="py-6 text-center text-zinc-500 text-xs">
+                    Checking operational status...
                   </div>
-                </div>
-                <div className="flex items-start gap-3 text-xs">
-                  <Bell className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-semibold text-zinc-200">Membership Expiration Alert</p>
-                    <p className="text-[11px] text-zinc-400">Robert Taylor membership expires in 3 days.</p>
+                ) : alerts.length > 0 ? (
+                  alerts.map((alert) => (
+                    <div key={alert.id} className="flex items-start gap-3 text-xs">
+                      {alert.type === 'attendance' && (
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                      )}
+                      {alert.type === 'expiration' && (
+                        <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                      )}
+                      {alert.type === 'inventory' && (
+                        <Package className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                      )}
+                      <div>
+                        <p className="font-semibold text-zinc-200">{alert.title}</p>
+                        <p className="text-[11px] text-zinc-400 leading-snug">{alert.detail}</p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="py-6 text-center text-zinc-500 text-xs font-medium">
+                    No new operational alerts
                   </div>
-                </div>
+                )}
               </div>
             </div>
           )}

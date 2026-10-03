@@ -349,7 +349,7 @@ ${userMessage.slice(0, 1000)}
 }
 
 /**
- * AI Business Insights & Predictive Analytics (Server-side)
+ * AI Business Insights & Operational Intelligence (Server-side)
  */
 export async function generateAIBusinessInsights(kpis: {
   monthlyRevenue: number;
@@ -370,9 +370,42 @@ export async function generateAIBusinessInsights(kpis: {
     }
   }
 
-  return `📊 **APEX AI Strategic Intelligence Report**:
+  // Rule-based operational analysis based strictly on real database KPIs
+  const revenueFormatted = `$${kpis.monthlyRevenue.toLocaleString()}`;
+  const observations: string[] = [];
 
-1. 🚀 **Revenue Expansion Opportunity**: Your current VIP Annual conversion rate is performing in the top 12th percentile. Introducing an Upsell Automated SMS offer for members expiring in 14 days can boost Monthly Recurring Revenue (MRR) by +14.2%.
-2. ⚠️ **Retention Safeguard**: 12 memberships are auto-expiring this week. Triggering an instant $10 renewal discount voucher can prevent up to $1,800 in potential churned revenue.
-3. ⚡ **Peak Facility Utilization**: Peak attendance occurs on Wednesdays between 6 PM - 9 PM (102 active check-ins). Scheduling an extra Group HIIT trainer during this window will improve equipment flow and satisfaction metrics.`;
+  // Observation 1: Expiring plans / Retention
+  if (kpis.expiringMemberships > 0) {
+    observations.push(
+      `1. ⚠️ **Expiring Plan Safeguard**: ${kpis.expiringMemberships} active membership${kpis.expiringMemberships === 1 ? '' : 's'} expire within the next 14 days. Recommend automated renewal reminders and front-desk concierge outreach before term expiration.`
+    );
+  } else {
+    observations.push(
+      `1. ✅ **Membership Retention Health**: Zero memberships currently expire within the next 14 days. Current membership stability remains steady.`
+    );
+  }
+
+  // Observation 2: Revenue & Cashflow
+  if (kpis.monthlyRevenue > 0) {
+    observations.push(
+      `2. 📈 **Financial Cashflow Overview**: Facility has logged ${revenueFormatted} in verified transactions month-to-date across ${kpis.activeMembers} active member account${kpis.activeMembers === 1 ? '' : 's'}. Maintain regular recurring billing audits.`
+    );
+  } else {
+    observations.push(
+      `2. 📊 **Revenue Pipeline**: No new payments processed in the current calendar month. Verify POS checkout terminals and recurring subscription processing.`
+    );
+  }
+
+  // Observation 3: Churn & Member Roster
+  if (kpis.churnRate > 0) {
+    observations.push(
+      `3. 👥 **Member Roster & Engagement**: Overall churn rate is currently at ${kpis.churnRate}%. Consider surveying inactive member accounts to identify re-engagement opportunities.`
+    );
+  } else {
+    observations.push(
+      `3. 🎯 **Roster Performance**: Churn rate is currently 0.0% with ${kpis.activeMembers} active members. Continue ongoing member onboarding and personal training check-ins.`
+    );
+  }
+
+  return `📋 **Operational Facility Intelligence Summary** (Rule-Based Analysis):\n\n${observations.join('\n\n')}`;
 }

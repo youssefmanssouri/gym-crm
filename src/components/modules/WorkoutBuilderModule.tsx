@@ -212,8 +212,8 @@ export const WorkoutBuilderModule: React.FC = () => {
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-extrabold text-white tracking-tight">Interactive Workout Builder & AI Generator</h2>
-          <p className="text-xs text-zinc-400 mt-1">Design set/rep schemes, manage exercise templates, or let Gemini AI build custom splits.</p>
+          <h2 className="text-2xl font-extrabold text-white tracking-tight">Workouts & Routines</h2>
+          <p className="text-xs text-zinc-400 mt-1">Design set/rep schemes, manage exercise templates, and generate personalized workout routines.</p>
         </div>
         <Button variant="outline" size="sm" icon={<RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />} onClick={loadWorkouts}>
           Refresh Library

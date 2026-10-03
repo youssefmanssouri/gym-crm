@@ -26,12 +26,12 @@ Apex Fitness CRM is a responsive web application demonstrating modern fitness fa
 2. **Member CRM:** Comprehensive member directory with membership tiers, status filtering, emergency contacts, and profile inspection.
 3. **Membership Plans:** Subscription tier catalog, custom duration options, perk bundles, and direct plan assignment workflow.
 4. **Attendance Terminal:** QR pass verification interface, simulated scanner camera, and check-in access logs.
-5. **Trainer Hub & Workout Builder:** Exercise library with sets, reps, rest intervals, muscle group targeting, and AI routine generation.
+5. **Workouts & Routines:** Exercise library with sets, reps, rest intervals, muscle group targeting, and AI routine generation.
 6. **Nutrition Protocol Planner:** Daily caloric and macronutrient targeting (protein, carbs, fat) with meal schedule breakdowns.
 7. **Payments & Billing:** Transaction ledger, dynamic revenue aggregation, invoice generation, and receipt printing.
 8. **Inventory & POS:** Supplement and merchandise catalog, stock level monitoring, low-stock warnings, and transactional sale checkout.
 9. **Staff & Security Audit:** Staff directory with role-based permissions (Admin, Manager, Trainer, Receptionist, Member) and system audit logs.
-10. **AI Power Suite:** Conversational fitness assistant, predictive retention modeling, and strategic revenue recommendations.
+10. **AI Assistant & Intelligence:** Conversational fitness assistant, predictive retention modeling, and strategic revenue recommendations.
 11. **Reports & Exports:** Exportable CSV reports for financial ledgers, member directories, and facility attendance logs.
 12. **System Settings:** Facility branding, operating hours, and sales tax rate configuration.
 

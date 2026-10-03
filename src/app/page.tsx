@@ -70,7 +70,8 @@ export default function GymCRMMainApp() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [globalSearch, setGlobalSearch] = useState('');
 
-  const navigateToTab = (tab: string) => {
+  const navigateToTab = (rawTab: string) => {
+    const tab = rawTab === 'trainers' ? 'workouts' : rawTab;
     if (VALID_TABS.includes(tab)) {
       setCurrentTab(tab);
       if (typeof window !== 'undefined' && window.location.hash !== `#${tab}`) {
@@ -81,13 +82,15 @@ export default function GymCRMMainApp() {
 
   useEffect(() => {
     // Read initial tab from URL hash if present
-    const hash = window.location.hash.replace('#', '');
+    const rawHash = window.location.hash.replace('#', '');
+    const hash = rawHash === 'trainers' ? 'workouts' : rawHash;
     if (hash && VALID_TABS.includes(hash)) {
       setCurrentTab(hash);
     }
 
     const onPopState = () => {
-      const currentHash = window.location.hash.replace('#', '');
+      const currentRaw = window.location.hash.replace('#', '');
+      const currentHash = currentRaw === 'trainers' ? 'workouts' : currentRaw;
       if (currentHash && VALID_TABS.includes(currentHash)) {
         setCurrentTab(currentHash);
       } else if (!currentHash) {
@@ -173,7 +176,6 @@ export default function GymCRMMainApp() {
           {currentTab === 'members' && <MembersModule initialSearch={globalSearch} />}
           {currentTab === 'memberships' && <MembershipsModule />}
           {currentTab === 'attendance' && <AttendanceModule />}
-          {currentTab === 'trainers' && <WorkoutBuilderModule />}
           {currentTab === 'workouts' && <WorkoutBuilderModule />}
           {currentTab === 'nutrition' && <NutritionModule />}
           {currentTab === 'payments' && <PaymentsModule />}

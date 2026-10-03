@@ -212,8 +212,8 @@ export const PaymentsModule: React.FC = () => {
               {errorMsg}
             </div>
           )}
-          <Input label="Member Name" value={payerName} onChange={(e) => setPayerName(e.target.value)} placeholder="e.g. Emily Watson" required />
-          <Input label="Email Address" type="email" value={payerEmail} onChange={(e) => setPayerEmail(e.target.value)} placeholder="emily@yahoo.com" />
+          <Input label="Member Name" value={payerName} onChange={(e) => setPayerName(e.target.value)} placeholder="e.g. David Chen" required />
+          <Input label="Email Address" type="email" value={payerEmail} onChange={(e) => setPayerEmail(e.target.value)} placeholder="david.chen@example.com" />
           <Input label="Amount Paid ($ USD)" type="number" min="0.01" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} required />
 
           <div>

@@ -16,7 +16,6 @@ import {
   Settings,
   LogOut,
   ChevronRight,
-  Flame,
   X,
 } from 'lucide-react';
 import { UserRole } from '@/lib/types';
@@ -40,23 +39,35 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isMobileOpen = false,
   onCloseMobile,
 }) => {
-  const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, perm: 'all' },
-    { id: 'members', label: 'Member CRM', icon: Users, perm: 'view_members' },
-    { id: 'memberships', label: 'Membership Plans', icon: CreditCard, perm: 'manage_plans' },
-    { id: 'attendance', label: 'Attendance Terminal', icon: QrCode, perm: 'manage_attendance' },
-    { id: 'trainers', label: 'Trainer Hub', icon: Dumbbell, perm: 'view_assigned_members' },
-    { id: 'workouts', label: 'Workout Builder & AI', icon: Flame, perm: 'all' },
-    { id: 'nutrition', label: 'Nutrition Planner', icon: Apple, perm: 'all' },
-    { id: 'payments', label: 'Payments & Billing', icon: DollarSign, perm: 'view_finances' },
-    { id: 'inventory', label: 'Inventory & POS', icon: Package, perm: 'manage_inventory' },
-    { id: 'staff', label: 'Staff & Audit Logs', icon: UserCheck, perm: 'manage_staff' },
-    { id: 'ai-suite', label: 'AI Power Suite', icon: Bot, perm: 'all' },
-    { id: 'reports', label: 'Reports & Analytics', icon: BarChart3, perm: 'view_reports' },
-    { id: 'settings', label: 'Settings', icon: Settings, perm: 'manage_settings' },
+  const menuSections = [
+    {
+      title: 'OPERATIONS',
+      items: [
+        { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, perm: 'all' },
+        { id: 'members', label: 'Member CRM', icon: Users, perm: 'view_members' },
+        { id: 'memberships', label: 'Memberships', icon: CreditCard, perm: 'manage_plans' },
+        { id: 'attendance', label: 'Attendance Terminal', icon: QrCode, perm: 'manage_attendance' },
+        { id: 'payments', label: 'Payments & Billing', icon: DollarSign, perm: 'view_finances' },
+        { id: 'inventory', label: 'Inventory & POS', icon: Package, perm: 'manage_inventory' },
+      ],
+    },
+    {
+      title: 'COACHING',
+      items: [
+        { id: 'workouts', label: 'Workouts & Routines', icon: Dumbbell, perm: 'all' },
+        { id: 'nutrition', label: 'Nutrition Planner', icon: Apple, perm: 'all' },
+        { id: 'ai-suite', label: 'AI Assistant & Intelligence', icon: Bot, perm: 'all' },
+      ],
+    },
+    {
+      title: 'ADMINISTRATION',
+      items: [
+        { id: 'staff', label: 'Staff & Audit Logs', icon: UserCheck, perm: 'manage_staff' },
+        { id: 'reports', label: 'Reports & Analytics', icon: BarChart3, perm: 'view_reports' },
+        { id: 'settings', label: 'Settings', icon: Settings, perm: 'manage_settings' },
+      ],
+    },
   ];
-
-  const visibleItems = menuItems.filter((item) => hasPermission(userRole, item.perm) || userRole === 'ADMIN');
 
   const handleSelectTab = (tabId: string) => {
     onSelectTab(tabId);
@@ -107,28 +118,41 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
 
           {/* Navigation Menu */}
-          <nav aria-label="Main Navigation" className="p-3 space-y-1 max-h-[calc(100vh-190px)] overflow-y-auto">
-            <div className="px-3 py-2 text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Core Operations</div>
-            {visibleItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = currentTab === item.id;
+          <nav aria-label="Main Navigation" className="p-3 space-y-4 max-h-[calc(100vh-190px)] overflow-y-auto">
+            {menuSections.map((section) => {
+              const visibleItems = section.items.filter(
+                (item) => hasPermission(userRole, item.perm) || userRole === 'ADMIN'
+              );
+              if (visibleItems.length === 0) return null;
+
               return (
-                <button
-                  key={item.id}
-                  onClick={() => handleSelectTab(item.id)}
-                  aria-current={isActive ? 'page' : undefined}
-                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 ${
-                    isActive
-                      ? 'bg-zinc-900 text-cyan-400 border border-cyan-500/30 shadow-md shadow-cyan-500/5'
-                      : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900/60'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon className={`w-4 h-4 transition-colors ${isActive ? 'text-cyan-400' : 'text-zinc-500 group-hover:text-zinc-300'}`} />
-                    <span>{item.label}</span>
+                <div key={section.title} className="space-y-1">
+                  <div className="px-3.5 py-1 text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
+                    {section.title}
                   </div>
-                  {isActive && <ChevronRight className="w-3.5 h-3.5 text-cyan-400" />}
-                </button>
+                  {visibleItems.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = currentTab === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        onClick={() => handleSelectTab(item.id)}
+                        aria-current={isActive ? 'page' : undefined}
+                        className={`w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-xs font-medium transition-all duration-200 group focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 ${
+                          isActive
+                            ? 'bg-zinc-900 text-cyan-400 border border-cyan-500/30 shadow-md shadow-cyan-500/5'
+                            : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900/60'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Icon className={`w-4 h-4 transition-colors ${isActive ? 'text-cyan-400' : 'text-zinc-500 group-hover:text-zinc-300'}`} />
+                          <span>{item.label}</span>
+                        </div>
+                        {isActive && <ChevronRight className="w-3.5 h-3.5 text-cyan-400" />}
+                      </button>
+                    );
+                  })}
+                </div>
               );
             })}
           </nav>
@@ -139,7 +163,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="flex items-center justify-between px-2 py-1.5 rounded-xl bg-zinc-900/50 border border-zinc-800/80">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-emerald-500" />
-              <span className="text-xs font-semibold text-zinc-300">Auth Active</span>
+              <span className="text-xs font-semibold text-zinc-300">System Online</span>
             </div>
             <span className="text-[10px] text-zinc-500 font-mono">{userRole}</span>
           </div>
