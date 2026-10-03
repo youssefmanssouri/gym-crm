@@ -12,7 +12,6 @@ import {
   LogOut,
   Sun,
   Moon,
-  Monitor,
   ShieldCheck,
   Menu,
 } from 'lucide-react';
@@ -46,13 +45,11 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [showThemeMenu, setShowThemeMenu] = useState(false);
   const [theme, setTheme] = useState<ThemeMode>('dark');
   const [searchVal, setSearchVal] = useState('');
   const [alerts, setAlerts] = useState<OperationalAlert[]>([]);
   const [isLoadingAlerts, setIsLoadingAlerts] = useState(false);
 
-  const themeMenuRef = useRef<HTMLDivElement>(null);
   const notificationsRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
@@ -60,7 +57,6 @@ export const Header: React.FC<HeaderProps> = ({
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        setShowThemeMenu(false);
         setShowNotifications(false);
         setShowUserMenu(false);
       }
@@ -68,9 +64,6 @@ export const Header: React.FC<HeaderProps> = ({
 
     const handlePointerDown = (e: MouseEvent) => {
       const target = e.target as Node;
-      if (themeMenuRef.current && !themeMenuRef.current.contains(target)) {
-        setShowThemeMenu(false);
-      }
       if (notificationsRef.current && !notificationsRef.current.contains(target)) {
         setShowNotifications(false);
       }
@@ -87,28 +80,27 @@ export const Header: React.FC<HeaderProps> = ({
     };
   }, []);
 
-  // Handle Theme switching
+  // Sync theme with localStorage and root classes on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('apex_theme') as ThemeMode;
+      if (saved && (saved === 'light' || saved === 'dark')) {
+        setTheme(saved);
+      } else {
+        const isDark = document.documentElement.classList.contains('dark');
+        setTheme(isDark ? 'dark' : 'light');
+      }
+    } catch {}
+  }, []);
+
+  // Handle Theme switching & persistence
   useEffect(() => {
     const root = document.documentElement;
-    const applyTheme = (mode: ThemeMode) => {
-      root.classList.remove('dark', 'light');
-      if (mode === 'system') {
-        const systemIsDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        root.classList.add(systemIsDark ? 'dark' : 'light');
-      } else {
-        root.classList.add(mode);
-      }
-    };
-
-    applyTheme(theme);
-
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleSystemChange = () => {
-      if (theme === 'system') applyTheme('system');
-    };
-
-    mediaQuery.addEventListener('change', handleSystemChange);
-    return () => mediaQuery.removeEventListener('change', handleSystemChange);
+    root.classList.remove('dark', 'light');
+    root.classList.add(theme);
+    try {
+      localStorage.setItem('apex_theme', theme);
+    } catch {}
   }, [theme]);
 
   // Fetch real dynamic operational alerts from analytics and inventory
@@ -184,12 +176,6 @@ export const Header: React.FC<HeaderProps> = ({
     };
   }, []);
 
-  const themeOptions: { mode: ThemeMode; label: string; icon: React.ReactNode }[] = [
-    { mode: 'light', label: 'Light', icon: <Sun className="w-4 h-4 text-amber-400" /> },
-    { mode: 'dark', label: 'Dark', icon: <Moon className="w-4 h-4 text-cyan-400" /> },
-    { mode: 'system', label: 'System', icon: <Monitor className="w-4 h-4 text-purple-400" /> },
-  ];
-
   return (
     <header className="h-16 bg-zinc-950/80 backdrop-blur-md border-b border-zinc-900 px-4 md:px-6 flex items-center justify-between sticky top-0 z-20">
       {/* Left Area: Mobile Menu Toggle & Search Input */}
@@ -231,49 +217,19 @@ export const Header: React.FC<HeaderProps> = ({
           <span>QR Check-in Pass</span>
         </button>
 
-        {/* Theme Switcher Dropdown (Light, Dark, System) */}
-        <div ref={themeMenuRef} className="relative">
-          <button
-            onClick={() => setShowThemeMenu(!showThemeMenu)}
-            aria-label="Toggle theme appearance menu"
-            aria-haspopup="true"
-            aria-expanded={showThemeMenu}
-            className="p-2 text-zinc-400 hover:text-zinc-100 hover:bg-zinc-900 rounded-xl transition-colors flex items-center gap-1.5 border border-zinc-800/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
-            title={`Current theme: ${theme}`}
-          >
-            {theme === 'light' && <Sun className="w-4 h-4 text-amber-400" />}
-            {theme === 'dark' && <Moon className="w-4 h-4 text-cyan-400" />}
-            {theme === 'system' && <Monitor className="w-4 h-4 text-purple-400" />}
-          </button>
-
-          {showThemeMenu && (
-            <div className="absolute right-0 mt-2 w-44 bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl p-1.5 z-40">
-              <div className="px-3 py-1.5 text-[10px] font-bold text-zinc-500 uppercase tracking-wider border-b border-zinc-800/80 mb-1">
-                Appearance Theme
-              </div>
-              <div className="space-y-0.5">
-                {themeOptions.map((opt) => (
-                  <button
-                    key={opt.mode}
-                    onClick={() => {
-                      setTheme(opt.mode);
-                      setShowThemeMenu(false);
-                    }}
-                    className={`w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-xs font-medium transition-colors ${
-                      theme === opt.mode ? 'bg-zinc-800 text-cyan-400 font-semibold' : 'text-zinc-300 hover:bg-zinc-800/50'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      {opt.icon}
-                      <span>{opt.label} Mode</span>
-                    </div>
-                    {theme === opt.mode && <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />}
-                  </button>
-                ))}
-              </div>
-            </div>
+        {/* Theme Toggle matching BusinessOS behavior */}
+        <button
+          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          aria-label="Toggle Theme"
+          title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+          className="rounded-xl border border-zinc-800/80 p-2 text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500"
+        >
+          {theme === 'dark' ? (
+            <Sun className="w-4 h-4 text-amber-400" />
+          ) : (
+            <Moon className="w-4 h-4 text-cyan-500" />
           )}
-        </div>
+        </button>
 
         {/* Notifications Icon Dropdown */}
         <div ref={notificationsRef} className="relative">

@@ -82,14 +82,31 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`dark ${inter.variable}`}>
+    <html lang="en" suppressHydrationWarning className={inter.variable}>
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var saved = localStorage.getItem('apex_theme');
+                  var isDark = saved ? saved === 'dark' : true;
+                  if (saved === 'system') {
+                    isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                  }
+                  document.documentElement.classList.remove('dark', 'light');
+                  document.documentElement.classList.add(isDark ? 'dark' : 'light');
+                } catch(e) {}
+              })();
+            `,
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="bg-zinc-950 text-zinc-100 antialiased font-sans">{children}</body>
+      <body className="bg-background text-foreground antialiased font-sans">{children}</body>
     </html>
   );
 }

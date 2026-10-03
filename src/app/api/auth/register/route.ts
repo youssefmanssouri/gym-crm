@@ -42,7 +42,7 @@ export async function POST(request: Request) {
       // 2. Hash password with bcrypt
       const passwordHash = bcrypt.hashSync(password, 10);
 
-      // 3. Create user with least-privileged role (MEMBER) and member profile atomically
+      // 3. Create user with Admin/Owner role and member profile atomically (matching BusinessOS behavior)
       const result = await prisma.$transaction(async (tx) => {
         const newUser = await tx.user.create({
           data: {
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
             passwordHash,
             name: name.trim(),
             avatar,
-            role: 'MEMBER',
+            role: 'ADMIN',
             status: 'ACTIVE',
           },
         });
@@ -68,11 +68,11 @@ export async function POST(request: Request) {
           actor: {
             id: newUser.id,
             email: newUser.email,
-            role: 'MEMBER',
+            role: 'ADMIN',
           },
           action: 'REGISTER',
           entity: 'User',
-          details: `Self-service member account registration for ${newUser.name} (${newUser.email})`,
+          details: `Self-service account registration (ADMIN) for ${newUser.name} (${newUser.email})`,
           ipAddress: extractClientIp(request),
           tx,
         });

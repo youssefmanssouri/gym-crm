@@ -123,7 +123,7 @@ export default function GymCRMMainApp() {
 
   if (isCheckingAuth || !currentUser) {
     return (
-      <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col items-center justify-center p-4">
+      <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4">
         <div className="flex flex-col items-center space-y-4 animate-pulse">
           <BrandLogo size={48} />
           <div className="text-center space-y-1">
@@ -140,7 +140,7 @@ export default function GymCRMMainApp() {
   const currentRole: UserRole = currentUser.role || 'MEMBER';
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex font-sans antialiased selection:bg-cyan-500 selection:text-zinc-950">
+    <div className="min-h-screen bg-background text-foreground flex font-sans antialiased selection:bg-cyan-500 selection:text-zinc-950">
       {/* Sidebar Navigation */}
       <Sidebar
         currentTab={currentTab}
