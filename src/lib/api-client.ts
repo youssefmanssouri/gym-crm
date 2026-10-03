@@ -50,13 +50,14 @@ export async function apiRegister(
   name: string,
   email: string,
   password: string,
-  confirmPassword: string
+  confirmPassword: string,
+  role: 'ADMIN' | 'MEMBER' = 'ADMIN'
 ): Promise<{ success: boolean; user?: User; error?: string }> {
   try {
     const res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password, confirmPassword }),
+      body: JSON.stringify({ name, email, password, confirmPassword, role }),
     });
     const data = await res.json();
     if (!res.ok) {

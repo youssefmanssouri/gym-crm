@@ -6,6 +6,7 @@ import { ShieldCheck, Lock, Mail, ArrowRight, AlertCircle, Loader2 } from 'lucid
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { BrandLogo } from '@/components/ui/BrandLogo';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { apiLogin } from '@/lib/api-client';
 
 export default function LoginPage() {
@@ -59,6 +60,11 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col justify-center items-center p-4 selection:bg-cyan-500 selection:text-zinc-950 relative overflow-hidden">
+      {/* Top right theme toggle */}
+      <div className="absolute top-4 right-4 z-20">
+        <ThemeToggle />
+      </div>
+
       {/* Ambient background glows */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/10 blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-600/10 blur-[100px] rounded-full pointer-events-none" />

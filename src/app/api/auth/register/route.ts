@@ -19,10 +19,11 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, email, password } = parsed.data;
+    const { name, email, password, role } = parsed.data;
     const normalizedEmail = email.toLowerCase().trim();
     const avatar = null;
     const uniqueQr = `APEX-M-${Date.now().toString(36).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    const accountRole: UserRole = role === 'MEMBER' ? 'MEMBER' : 'ADMIN';
 
     let sessionUser: SessionUser;
 
@@ -42,7 +43,7 @@ export async function POST(request: Request) {
       // 2. Hash password with bcrypt
       const passwordHash = bcrypt.hashSync(password, 10);
 
-      // 3. Create user with Admin/Owner role and member profile atomically (matching BusinessOS behavior)
+      // 3. Create user with selected account type and member profile atomically
       const result = await prisma.$transaction(async (tx) => {
         const newUser = await tx.user.create({
           data: {
@@ -50,7 +51,7 @@ export async function POST(request: Request) {
             passwordHash,
             name: name.trim(),
             avatar,
-            role: 'ADMIN',
+            role: accountRole,
             status: 'ACTIVE',
           },
         });
@@ -68,11 +69,11 @@ export async function POST(request: Request) {
           actor: {
             id: newUser.id,
             email: newUser.email,
-            role: 'ADMIN',
+            role: accountRole,
           },
           action: 'REGISTER',
           entity: 'User',
-          details: `Self-service account registration (ADMIN) for ${newUser.name} (${newUser.email})`,
+          details: `Self-service account registration (${accountRole}) for ${newUser.name} (${newUser.email})`,
           ipAddress: extractClientIp(request),
           tx,
         });
