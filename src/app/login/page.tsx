@@ -75,25 +75,25 @@ export default function LoginPage() {
           <div className="flex justify-center mb-2">
             <BrandLogo size={48} />
           </div>
-          <h1 className="text-2xl font-black tracking-tight text-white flex items-center justify-center gap-1.5">
-            APEX <span className="text-cyan-400 text-xs font-semibold px-2 py-0.5 rounded-md bg-cyan-950 border border-cyan-800">CRM</span>
+          <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center justify-center gap-1.5">
+            APEX <span className="text-cyan-600 dark:text-cyan-400 text-xs font-semibold px-2 py-0.5 rounded-md bg-cyan-50 dark:bg-cyan-950 border border-cyan-200 dark:border-cyan-800">CRM</span>
           </h1>
-          <p className="text-xs text-zinc-400 font-medium">Fitness Facility & Member Operations Platform</p>
+          <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium">Fitness Facility & Member Operations Platform</p>
         </div>
 
         {/* Login Card */}
-        <Card className="bg-zinc-900/90 border-zinc-800 p-6 sm:p-8 backdrop-blur-xl shadow-xl">
-          <div className="pb-5 border-b border-zinc-800 mb-5 text-center">
-            <h2 className="text-lg font-bold text-white tracking-tight flex items-center justify-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-cyan-400" /> Sign in to Gym CRM
+        <Card className="bg-white/95 dark:bg-zinc-900/90 border-slate-200 dark:border-zinc-800 p-6 sm:p-8 backdrop-blur-xl shadow-xl">
+          <div className="pb-5 border-b border-slate-200 dark:border-zinc-800 mb-5 text-center">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center justify-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-cyan-600 dark:text-cyan-400" /> Sign in to Gym CRM
             </h2>
-            <p className="text-xs text-zinc-400 mt-1">Welcome back to your workspace</p>
+            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">Welcome back to your workspace</p>
           </div>
 
           {errorMessage && (
             <div
               role="alert"
-              className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-medium flex items-center gap-2"
+              className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-medium flex items-center gap-2"
             >
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{errorMessage}</span>
@@ -102,8 +102,8 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} noValidate className="space-y-4">
             <div className="space-y-1.5">
-              <label htmlFor="login-email" className="text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
-                <Mail className="w-3.5 h-3.5 text-zinc-400" /> Email address
+              <label htmlFor="login-email" className="text-xs font-semibold text-slate-700 dark:text-zinc-300 flex items-center gap-1.5">
+                <Mail className="w-3.5 h-3.5 text-slate-400 dark:text-zinc-400" /> Email address
               </label>
               <input
                 id="login-email"
@@ -118,20 +118,20 @@ export default function LoginPage() {
                 }}
                 autoComplete="email"
                 placeholder="name@apexfitness.com"
-                className={`w-full bg-zinc-950 border rounded-xl px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 transition-all ${
+                className={`w-full bg-slate-50 dark:bg-zinc-950 border rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-zinc-100 placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-1 transition-all ${
                   fieldErrors.email
                     ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/30'
-                    : 'border-zinc-800 focus:border-cyan-500 focus:ring-cyan-500/50'
+                    : 'border-slate-300 dark:border-zinc-800 focus:border-cyan-500 focus:ring-cyan-500/50'
                 }`}
               />
               {fieldErrors.email && (
-                <p className="text-xs text-rose-400 font-medium">{fieldErrors.email}</p>
+                <p className="text-xs text-rose-500 dark:text-rose-400 font-medium">{fieldErrors.email}</p>
               )}
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="login-password" className="text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5 text-zinc-400" /> Password
+              <label htmlFor="login-password" className="text-xs font-semibold text-slate-700 dark:text-zinc-300 flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5 text-slate-400 dark:text-zinc-400" /> Password
               </label>
               <input
                 id="login-password"
@@ -146,14 +146,14 @@ export default function LoginPage() {
                 }}
                 autoComplete="current-password"
                 placeholder="••••••••••••"
-                className={`w-full bg-zinc-950 border rounded-xl px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 transition-all ${
+                className={`w-full bg-slate-50 dark:bg-zinc-950 border rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-zinc-100 placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-1 transition-all ${
                   fieldErrors.password
                     ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/30'
-                    : 'border-zinc-800 focus:border-cyan-500 focus:ring-cyan-500/50'
+                    : 'border-slate-300 dark:border-zinc-800 focus:border-cyan-500 focus:ring-cyan-500/50'
                 }`}
               />
               {fieldErrors.password && (
-                <p className="text-xs text-rose-400 font-medium">{fieldErrors.password}</p>
+                <p className="text-xs text-rose-500 dark:text-rose-400 font-medium">{fieldErrors.password}</p>
               )}
             </div>
 
@@ -169,12 +169,12 @@ export default function LoginPage() {
           </form>
 
           {/* Registration Navigation Link */}
-          <div className="mt-6 pt-5 border-t border-zinc-800/80 text-center space-y-1">
-            <p className="text-xs text-zinc-400">
+          <div className="mt-6 pt-5 border-t border-slate-200 dark:border-zinc-800/80 text-center space-y-1">
+            <p className="text-xs text-slate-500 dark:text-zinc-400">
               Don&apos;t have an account?{' '}
               <Link
                 href="/register"
-                className="text-cyan-400 hover:text-cyan-300 font-semibold transition-colors underline-offset-4 hover:underline"
+                className="text-cyan-600 dark:text-cyan-400 hover:text-cyan-500 dark:hover:text-cyan-300 font-semibold transition-colors underline-offset-4 hover:underline"
               >
                 Create account
               </Link>
@@ -183,7 +183,7 @@ export default function LoginPage() {
         </Card>
 
         {/* Footer info */}
-        <div className="text-center text-[11px] text-zinc-500">
+        <div className="text-center text-[11px] text-slate-400 dark:text-zinc-500">
           <p>Apex Fitness Management System • Role-Based Access Control & Session Security</p>
         </div>
       </div>

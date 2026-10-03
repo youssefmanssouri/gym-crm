@@ -99,25 +99,25 @@ export default function RegisterPage() {
           <div className="flex justify-center mb-2">
             <BrandLogo size={48} />
           </div>
-          <h1 className="text-2xl font-black tracking-tight text-white flex items-center justify-center gap-1.5">
-            APEX <span className="text-cyan-400 text-xs font-semibold px-2 py-0.5 rounded-md bg-cyan-950 border border-cyan-800">CRM</span>
+          <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center justify-center gap-1.5">
+            APEX <span className="text-cyan-600 dark:text-cyan-400 text-xs font-semibold px-2 py-0.5 rounded-md bg-cyan-50 dark:bg-cyan-950 border border-cyan-200 dark:border-cyan-800">CRM</span>
           </h1>
-          <p className="text-xs text-zinc-400 font-medium">Fitness Facility & Member Operations Platform</p>
+          <p className="text-xs text-slate-500 dark:text-zinc-400 font-medium">Fitness Facility & Member Operations Platform</p>
         </div>
 
         {/* Registration Card */}
-        <Card className="bg-zinc-900/90 border-zinc-800 p-6 sm:p-8 backdrop-blur-xl shadow-xl">
-          <div className="pb-5 border-b border-zinc-800 mb-5 text-center">
-            <h2 className="text-lg font-bold text-white tracking-tight flex items-center justify-center gap-2">
-              <UserPlus className="w-5 h-5 text-cyan-400" /> Create your account
+        <Card className="bg-white/95 dark:bg-zinc-900/90 border-slate-200 dark:border-zinc-800 p-6 sm:p-8 backdrop-blur-xl shadow-xl">
+          <div className="pb-5 border-b border-slate-200 dark:border-zinc-800 mb-5 text-center">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center justify-center gap-2">
+              <UserPlus className="w-5 h-5 text-cyan-600 dark:text-cyan-400" /> Create your account
             </h2>
-            <p className="text-xs text-zinc-400 mt-1">Select your account type and get started</p>
+            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">Select your account type and get started</p>
           </div>
 
           {errorMessage && (
             <div
               role="alert"
-              className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-medium flex items-center gap-2"
+              className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs font-medium flex items-center gap-2"
             >
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{errorMessage}</span>
@@ -127,9 +127,9 @@ export default function RegisterPage() {
           <form onSubmit={handleSubmit} noValidate className="space-y-4">
             {/* Account Type Selector (BusinessOS Alignment) */}
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-zinc-300 flex items-center justify-between">
+              <label className="text-xs font-semibold text-slate-700 dark:text-zinc-300 flex items-center justify-between">
                 <span>Account Type</span>
-                <span className="text-[11px] font-normal text-zinc-400">Choose your access role</span>
+                <span className="text-[11px] font-normal text-slate-500 dark:text-zinc-400">Choose your access role</span>
               </label>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3" role="radiogroup" aria-label="Account Type">
@@ -141,26 +141,34 @@ export default function RegisterPage() {
                   onClick={() => setRole('ADMIN')}
                   className={`p-3.5 rounded-xl border text-left transition-all relative flex flex-col justify-between ${
                     role === 'ADMIN'
-                      ? 'border-cyan-500 bg-cyan-950/20 text-white shadow-sm ring-1 ring-cyan-500/30'
-                      : 'border-zinc-800 bg-zinc-950/50 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200'
+                      ? 'border-cyan-500 bg-cyan-50/70 text-slate-900 shadow-sm ring-1 ring-cyan-500/30 dark:border-cyan-500 dark:bg-cyan-950/25 dark:text-white'
+                      : 'border-slate-200 bg-slate-50/80 text-slate-600 hover:border-slate-300 hover:bg-slate-100/70 dark:border-zinc-800 dark:bg-zinc-950/50 dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:text-zinc-200'
                   }`}
                 >
                   <div className="flex items-center justify-between w-full mb-2">
                     <div className="flex items-center gap-2">
-                      <div className={`p-1.5 rounded-lg ${role === 'ADMIN' ? 'bg-cyan-500/20 text-cyan-400' : 'bg-zinc-800/80 text-zinc-400'}`}>
+                      <div className={`p-1.5 rounded-lg ${
+                        role === 'ADMIN'
+                          ? 'bg-cyan-100 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-400'
+                          : 'bg-slate-200/60 text-slate-600 dark:bg-zinc-800/80 dark:text-zinc-400'
+                      }`}>
                         <Shield className="w-4 h-4" />
                       </div>
-                      <span className="text-xs font-bold text-zinc-100">Administrator</span>
+                      <span className={`text-xs font-bold ${
+                        role === 'ADMIN' ? 'text-cyan-950 dark:text-zinc-100' : 'text-slate-800 dark:text-zinc-200'
+                      }`}>Administrator</span>
                     </div>
                     <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
                       role === 'ADMIN'
-                        ? 'border-cyan-500 bg-cyan-500 text-zinc-950'
-                        : 'border-zinc-700 bg-transparent'
+                        ? 'border-cyan-500 bg-cyan-500 text-white dark:text-zinc-950'
+                        : 'border-slate-300 dark:border-zinc-700 bg-transparent'
                     }`}>
                       {role === 'ADMIN' && <Check className="w-3 h-3 stroke-[3]" />}
                     </div>
                   </div>
-                  <p className="text-[11px] text-zinc-400 leading-relaxed">
+                  <p className={`text-[11px] leading-relaxed ${
+                    role === 'ADMIN' ? 'text-slate-600 dark:text-zinc-300' : 'text-slate-500 dark:text-zinc-400'
+                  }`}>
                     Gym staff, managers & owners. Full CRM, payments, attendance & member controls.
                   </p>
                 </button>
@@ -173,34 +181,43 @@ export default function RegisterPage() {
                   onClick={() => setRole('MEMBER')}
                   className={`p-3.5 rounded-xl border text-left transition-all relative flex flex-col justify-between ${
                     role === 'MEMBER'
-                      ? 'border-cyan-500 bg-cyan-950/20 text-white shadow-sm ring-1 ring-cyan-500/30'
-                      : 'border-zinc-800 bg-zinc-950/50 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200'
+                      ? 'border-cyan-500 bg-cyan-50/70 text-slate-900 shadow-sm ring-1 ring-cyan-500/30 dark:border-cyan-500 dark:bg-cyan-950/25 dark:text-white'
+                      : 'border-slate-200 bg-slate-50/80 text-slate-600 hover:border-slate-300 hover:bg-slate-100/70 dark:border-zinc-800 dark:bg-zinc-950/50 dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:text-zinc-200'
                   }`}
                 >
                   <div className="flex items-center justify-between w-full mb-2">
                     <div className="flex items-center gap-2">
-                      <div className={`p-1.5 rounded-lg ${role === 'MEMBER' ? 'bg-cyan-500/20 text-cyan-400' : 'bg-zinc-800/80 text-zinc-400'}`}>
+                      <div className={`p-1.5 rounded-lg ${
+                        role === 'MEMBER'
+                          ? 'bg-cyan-100 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-400'
+                          : 'bg-slate-200/60 text-slate-600 dark:bg-zinc-800/80 dark:text-zinc-400'
+                      }`}>
                         <Dumbbell className="w-4 h-4" />
                       </div>
-                      <span className="text-xs font-bold text-zinc-100">Gym Member</span>
+                      <span className={`text-xs font-bold ${
+                        role === 'MEMBER' ? 'text-cyan-950 dark:text-zinc-100' : 'text-slate-800 dark:text-zinc-200'
+                      }`}>Gym Member</span>
                     </div>
                     <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
                       role === 'MEMBER'
-                        ? 'border-cyan-500 bg-cyan-500 text-zinc-950'
-                        : 'border-zinc-700 bg-transparent'
+                        ? 'border-cyan-500 bg-cyan-500 text-white dark:text-zinc-950'
+                        : 'border-slate-300 dark:border-zinc-700 bg-transparent'
                     }`}>
                       {role === 'MEMBER' && <Check className="w-3 h-3 stroke-[3]" />}
                     </div>
                   </div>
-                  <p className="text-[11px] text-zinc-400 leading-relaxed">
+                  <p className={`text-[11px] leading-relaxed ${
+                    role === 'MEMBER' ? 'text-slate-600 dark:text-zinc-300' : 'text-slate-500 dark:text-zinc-400'
+                  }`}>
                     Personal workouts, nutrition guidance, QR check-in pass & membership details.
                   </p>
                 </button>
               </div>
             </div>
+
             <div className="space-y-1.5">
-              <label htmlFor="register-name" className="text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
-                <User className="w-3.5 h-3.5 text-zinc-400" /> Full name
+              <label htmlFor="register-name" className="text-xs font-semibold text-slate-700 dark:text-zinc-300 flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5 text-slate-400 dark:text-zinc-400" /> Full name
               </label>
               <input
                 id="register-name"
@@ -215,20 +232,20 @@ export default function RegisterPage() {
                 }}
                 autoComplete="name"
                 placeholder="Alex Vance"
-                className={`w-full bg-zinc-950 border rounded-xl px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 transition-all ${
+                className={`w-full bg-slate-50 dark:bg-zinc-950 border rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-zinc-100 placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-1 transition-all ${
                   fieldErrors.name
                     ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/30'
-                    : 'border-zinc-800 focus:border-cyan-500 focus:ring-cyan-500/50'
+                    : 'border-slate-300 dark:border-zinc-800 focus:border-cyan-500 focus:ring-cyan-500/50'
                 }`}
               />
               {fieldErrors.name && (
-                <p className="text-xs text-rose-400 font-medium">{fieldErrors.name}</p>
+                <p className="text-xs text-rose-500 dark:text-rose-400 font-medium">{fieldErrors.name}</p>
               )}
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="register-email" className="text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
-                <Mail className="w-3.5 h-3.5 text-zinc-400" /> Email address
+              <label htmlFor="register-email" className="text-xs font-semibold text-slate-700 dark:text-zinc-300 flex items-center gap-1.5">
+                <Mail className="w-3.5 h-3.5 text-slate-400 dark:text-zinc-400" /> Email address
               </label>
               <input
                 id="register-email"
@@ -243,20 +260,20 @@ export default function RegisterPage() {
                 }}
                 autoComplete="email"
                 placeholder="name@apexfitness.com"
-                className={`w-full bg-zinc-950 border rounded-xl px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 transition-all ${
+                className={`w-full bg-slate-50 dark:bg-zinc-950 border rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-zinc-100 placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-1 transition-all ${
                   fieldErrors.email
                     ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/30'
-                    : 'border-zinc-800 focus:border-cyan-500 focus:ring-cyan-500/50'
+                    : 'border-slate-300 dark:border-zinc-800 focus:border-cyan-500 focus:ring-cyan-500/50'
                 }`}
               />
               {fieldErrors.email && (
-                <p className="text-xs text-rose-400 font-medium">{fieldErrors.email}</p>
+                <p className="text-xs text-rose-500 dark:text-rose-400 font-medium">{fieldErrors.email}</p>
               )}
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="register-password" className="text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5 text-zinc-400" /> Password
+              <label htmlFor="register-password" className="text-xs font-semibold text-slate-700 dark:text-zinc-300 flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5 text-slate-400 dark:text-zinc-400" /> Password
               </label>
               <input
                 id="register-password"
@@ -271,20 +288,20 @@ export default function RegisterPage() {
                 }}
                 autoComplete="new-password"
                 placeholder="••••••••••••"
-                className={`w-full bg-zinc-950 border rounded-xl px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 transition-all ${
+                className={`w-full bg-slate-50 dark:bg-zinc-950 border rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-zinc-100 placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-1 transition-all ${
                   fieldErrors.password
                     ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/30'
-                    : 'border-zinc-800 focus:border-cyan-500 focus:ring-cyan-500/50'
+                    : 'border-slate-300 dark:border-zinc-800 focus:border-cyan-500 focus:ring-cyan-500/50'
                 }`}
               />
               {fieldErrors.password && (
-                <p className="text-xs text-rose-400 font-medium">{fieldErrors.password}</p>
+                <p className="text-xs text-rose-500 dark:text-rose-400 font-medium">{fieldErrors.password}</p>
               )}
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="register-confirm-password" className="text-xs font-semibold text-zinc-300 flex items-center gap-1.5">
-                <Lock className="w-3.5 h-3.5 text-zinc-400" /> Confirm password
+              <label htmlFor="register-confirm-password" className="text-xs font-semibold text-slate-700 dark:text-zinc-300 flex items-center gap-1.5">
+                <Lock className="w-3.5 h-3.5 text-slate-400 dark:text-zinc-400" /> Confirm password
               </label>
               <input
                 id="register-confirm-password"
@@ -299,14 +316,14 @@ export default function RegisterPage() {
                 }}
                 autoComplete="new-password"
                 placeholder="••••••••••••"
-                className={`w-full bg-zinc-950 border rounded-xl px-3.5 py-2.5 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-1 transition-all ${
+                className={`w-full bg-slate-50 dark:bg-zinc-950 border rounded-xl px-3.5 py-2.5 text-sm text-slate-900 dark:text-zinc-100 placeholder-slate-400 dark:placeholder-zinc-500 focus:outline-none focus:ring-1 transition-all ${
                   fieldErrors.confirmPassword
                     ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500/30'
-                    : 'border-zinc-800 focus:border-cyan-500 focus:ring-cyan-500/50'
+                    : 'border-slate-300 dark:border-zinc-800 focus:border-cyan-500 focus:ring-cyan-500/50'
                 }`}
               />
               {fieldErrors.confirmPassword && (
-                <p className="text-xs text-rose-400 font-medium">{fieldErrors.confirmPassword}</p>
+                <p className="text-xs text-rose-500 dark:text-rose-400 font-medium">{fieldErrors.confirmPassword}</p>
               )}
             </div>
 
@@ -322,12 +339,12 @@ export default function RegisterPage() {
           </form>
 
           {/* Sign In Navigation Link */}
-          <div className="mt-6 pt-5 border-t border-zinc-800/80 text-center space-y-1">
-            <p className="text-xs text-zinc-400">
+          <div className="mt-6 pt-5 border-t border-slate-200 dark:border-zinc-800/80 text-center space-y-1">
+            <p className="text-xs text-slate-500 dark:text-zinc-400">
               Already have an account?{' '}
               <Link
                 href="/login"
-                className="text-cyan-400 hover:text-cyan-300 font-semibold transition-colors underline-offset-4 hover:underline"
+                className="text-cyan-600 dark:text-cyan-400 hover:text-cyan-500 dark:hover:text-cyan-300 font-semibold transition-colors underline-offset-4 hover:underline"
               >
                 Sign in
               </Link>
@@ -336,7 +353,7 @@ export default function RegisterPage() {
         </Card>
 
         {/* Footer info */}
-        <div className="text-center text-[11px] text-zinc-500">
+        <div className="text-center text-[11px] text-slate-400 dark:text-zinc-500">
           <p>Apex Fitness Management System • Role-Based Access Control & Session Security</p>
         </div>
       </div>
