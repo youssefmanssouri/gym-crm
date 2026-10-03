@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { UserRole } from '@/lib/types';
 import { hasPermission } from '@/lib/auth';
+import { BrandLogo } from '@/components/ui/BrandLogo';
 
 interface SidebarProps {
   currentTab: string;
@@ -84,9 +85,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           {/* Brand Logo Header */}
           <div className="h-16 flex items-center justify-between px-6 border-b border-zinc-900">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-                <Dumbbell className="w-5 h-5 text-zinc-950 stroke-[2.5]" />
-              </div>
+              <BrandLogo size={36} />
               <div>
                 <h1 className="font-extrabold text-base tracking-tight text-white flex items-center gap-1.5">
                   APEX <span className="text-cyan-400 text-xs font-semibold px-1.5 py-0.5 rounded bg-cyan-950 border border-cyan-800">CRM</span>

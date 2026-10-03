@@ -11,7 +11,8 @@ import { AttendanceModule } from '@/components/modules/AttendanceModule';
 import { Modal } from '@/components/ui/Modal';
 import { UserRole, User } from '@/lib/types';
 import { apiGetSession, apiLogout } from '@/lib/api-client';
-import { Dumbbell, ShieldCheck, Loader2 } from 'lucide-react';
+import { ShieldCheck, Loader2 } from 'lucide-react';
+import { BrandLogo } from '@/components/ui/BrandLogo';
 
 const ModuleLoadingFallback = () => (
   <div className="flex flex-col items-center justify-center p-12 space-y-3 rounded-2xl bg-zinc-900/50 border border-zinc-800 animate-pulse">
@@ -121,9 +122,7 @@ export default function GymCRMMainApp() {
     return (
       <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col items-center justify-center p-4">
         <div className="flex flex-col items-center space-y-4 animate-pulse">
-          <div className="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center border border-cyan-500/30">
-            <Dumbbell className="w-6 h-6 stroke-[2.5]" />
-          </div>
+          <BrandLogo size={48} />
           <div className="text-center space-y-1">
             <h2 className="text-sm font-bold text-white tracking-wider uppercase flex items-center justify-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-cyan-400" /> Apex Fitness CRM

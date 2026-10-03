@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" width="100%" height="100%" aria-label="Apex Gym Brand Logo Mark">
+  <!-- Outer Athletic Shield Contour -->
+  <path
+    d="M24 4L7 10V22.5C7 33.2 14.3 42.8 24 45.5C33.7 42.8 41 33.2 41 22.5V10L24 4Z"
+    fill="#09090b"
+    stroke="#06b6d4"
+    stroke-width="2.5"
+    stroke-linejoin="round"
+  />
+  <!-- Upper Apex Performance Peak ("A" Monogram) -->
+  <path
+    d="M24 10.5L14.5 27H19.5L24 18.5L28.5 27H33.5L24 10.5Z"
+    fill="#22d3ee"
+  />
+  <!-- Olympic Barbell Shaft -->
+  <path
+    d="M10 27H38"
+    stroke="#ffffff"
+    stroke-width="2.5"
+    stroke-linecap="round"
+  />
+  <!-- Precision Weight Plates Left -->
+  <rect x="11.5" y="21" width="3" height="12" rx="1" fill="#ffffff" />
+  <rect x="15.5" y="23" width="2" height="8" rx="0.75" fill="#38bdf8" />
+  <!-- Precision Weight Plates Right -->
+  <rect x="30.5" y="23" width="2" height="8" rx="0.75" fill="#38bdf8" />
+  <rect x="33.5" y="21" width="3" height="12" rx="1" fill="#ffffff" />
+  <!-- Lower Athletic Power Chevron -->
+  <path
+    d="M24 32.5L28.5 38.5H19.5L24 32.5Z"
+    fill="#06b6d4"
+  />
+</svg>

@@ -12,19 +12,45 @@ export default function Icon() {
     (
       <div
         style={{
-          fontSize: 18,
-          background: 'linear-gradient(135deg, #06b6d4, #2563eb)',
           width: '100%',
           height: '100%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: '#09090b',
-          borderRadius: '8px',
-          fontWeight: 900,
+          backgroundColor: '#09090b',
         }}
       >
-        ⚡
+        <svg
+          width="28"
+          height="28"
+          viewBox="0 0 48 48"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            d="M24 4L7 10V22.5C7 33.2 14.3 42.8 24 45.5C33.7 42.8 41 33.2 41 22.5V10L24 4Z"
+            fill="#09090b"
+            stroke="#06b6d4"
+            strokeWidth="3.5"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M24 10.5L14.5 27H19.5L24 18.5L28.5 27H33.5L24 10.5Z"
+            fill="#22d3ee"
+          />
+          <path
+            d="M10 27H38"
+            stroke="#ffffff"
+            strokeWidth="3.5"
+            strokeLinecap="round"
+          />
+          <rect x="11.5" y="21" width="3.5" height="12" rx="1" fill="#ffffff" />
+          <rect x="33" y="21" width="3.5" height="12" rx="1" fill="#ffffff" />
+          <path
+            d="M24 32.5L28.5 38.5H19.5L24 32.5Z"
+            fill="#06b6d4"
+          />
+        </svg>
       </div>
     ),
     {

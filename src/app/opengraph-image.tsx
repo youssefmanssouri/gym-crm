@@ -35,20 +35,39 @@ export default async function OpenGraphImage() {
             marginBottom: '28px',
           }}
         >
-          <div
-            style={{
-              width: '64px',
-              height: '64px',
-              borderRadius: '18px',
-              background: 'linear-gradient(135deg, #06b6d4, #2563eb)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 8px 32px rgba(6, 182, 212, 0.3)',
-            }}
+          <svg
+            width="64"
+            height="64"
+            viewBox="0 0 48 48"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
           >
-            <div style={{ fontSize: '32px' }}>⚡</div>
-          </div>
+            <path
+              d="M24 4L7 10V22.5C7 33.2 14.3 42.8 24 45.5C33.7 42.8 41 33.2 41 22.5V10L24 4Z"
+              fill="#09090b"
+              stroke="#06b6d4"
+              strokeWidth="2.5"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M24 10.5L14.5 27H19.5L24 18.5L28.5 27H33.5L24 10.5Z"
+              fill="#22d3ee"
+            />
+            <path
+              d="M10 27H38"
+              stroke="#ffffff"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+            />
+            <rect x="11.5" y="21" width="3" height="12" rx="1" fill="#ffffff" />
+            <rect x="15.5" y="23" width="2" height="8" rx="0.75" fill="#38bdf8" />
+            <rect x="30.5" y="23" width="2" height="8" rx="0.75" fill="#38bdf8" />
+            <rect x="33.5" y="21" width="3" height="12" rx="1" fill="#ffffff" />
+            <path
+              d="M24 32.5L28.5 38.5H19.5L24 32.5Z"
+              fill="#06b6d4"
+            />
+          </svg>
           <div
             style={{
               display: 'flex',

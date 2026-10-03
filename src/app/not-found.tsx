@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { Dumbbell, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+import { BrandLogo } from '@/components/ui/BrandLogo';
 
 export default function NotFound() {
   return (
@@ -7,8 +8,8 @@ export default function NotFound() {
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/10 blur-[120px] rounded-full pointer-events-none" />
 
       <div className="max-w-md w-full text-center space-y-6 relative z-10">
-        <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-zinc-900 border border-zinc-800 text-cyan-400 shadow-xl shadow-cyan-500/10">
-          <Dumbbell className="w-7 h-7 stroke-[2.5]" />
+        <div className="flex justify-center">
+          <BrandLogo size={56} />
         </div>
 
         <div className="space-y-2">

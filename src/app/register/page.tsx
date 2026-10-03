@@ -2,9 +2,10 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { Dumbbell, UserPlus, User, Mail, Lock, ArrowRight, AlertCircle, Loader2 } from 'lucide-react';
+import { UserPlus, User, Mail, Lock, ArrowRight, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { BrandLogo } from '@/components/ui/BrandLogo';
 import { apiRegister } from '@/lib/api-client';
 
 interface FieldErrors {
@@ -88,8 +89,8 @@ export default function RegisterPage() {
       <div className="w-full max-w-md relative z-10 space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 shadow-xl shadow-cyan-500/20 mb-2">
-            <Dumbbell className="w-6 h-6 text-zinc-950 stroke-[2.5]" />
+          <div className="flex justify-center mb-2">
+            <BrandLogo size={48} />
           </div>
           <h1 className="text-2xl font-black tracking-tight text-white flex items-center justify-center gap-1.5">
             APEX <span className="text-cyan-400 text-xs font-semibold px-2 py-0.5 rounded-md bg-cyan-950 border border-cyan-800">CRM</span>
