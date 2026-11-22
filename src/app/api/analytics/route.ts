@@ -10,8 +10,8 @@ export async function GET() {
 
     const now = new Date();
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const dayOfWeek = now.getDay();
-    const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - dayOfWeek);
+    // Rolling seven days, matching the dashboard's "collected past 7 days" label.
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     const fourteenDaysAhead = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
 
@@ -48,7 +48,7 @@ export async function GET() {
       // 5. Weekly revenue (completed)
       prisma.payment.aggregate({
         _sum: { amount: true },
-        where: { status: 'COMPLETED', date: { gte: startOfWeek } },
+        where: { status: 'COMPLETED', date: { gte: sevenDaysAgo } },
       }),
       // 6. Outstanding/Pending payments
       prisma.payment.aggregate({

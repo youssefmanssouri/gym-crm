@@ -5,11 +5,18 @@ import { AttendanceRecord } from '@/lib/types';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     await requireAuth();
 
+    // ?scope=today limits the log to check-ins since midnight (server time);
+    // without it the latest 100 records are returned, as the reports expect.
+    const todayOnly = new URL(request.url).searchParams.get('scope') === 'today';
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
     const records = await prisma.attendance.findMany({
+      where: todayOnly ? { checkInTime: { gte: startOfToday } } : undefined,
       include: {
         user: true,
       },

@@ -17,7 +17,7 @@
 
 - **Live Application Demo**: [https://gym-crm-gules.vercel.app](https://gym-crm-gules.vercel.app)
 - **Engineering Case Study**: [https://www.youssefmanssouri.site/projects/gym-crm](https://www.youssefmanssouri.site/projects/gym-crm)
-- *Demo Credentials Note: Quick-fill buttons are provided on the login page for Admin, Manager, Trainer, Receptionist, and Member roles.*
+- *Demo access: register a new account from the login page and choose Administrator or Gym Member. Registration is open for demo evaluation only; a private deployment should create admin accounts through an existing administrator.*
 
 ---
 
