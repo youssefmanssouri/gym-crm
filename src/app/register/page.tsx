@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { UserPlus, User, Mail, Lock, ArrowRight, AlertCircle, Loader2, Shield, Dumbbell, Check } from 'lucide-react';
+import { UserPlus, User, Mail, Lock, ArrowRight, AlertCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { BrandLogo } from '@/components/ui/BrandLogo';
@@ -21,7 +21,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState<'ADMIN' | 'MEMBER'>('ADMIN');
+  const role = 'MEMBER' as const;
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -111,7 +111,7 @@ export default function RegisterPage() {
             <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight flex items-center justify-center gap-2">
               <UserPlus className="w-5 h-5 text-cyan-600 dark:text-cyan-400" /> Create your account
             </h2>
-            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">Select your account type and get started</p>
+            <p className="text-xs text-slate-500 dark:text-zinc-400 mt-1">Join as a gym member</p>
           </div>
 
           {errorMessage && (
@@ -125,95 +125,9 @@ export default function RegisterPage() {
           )}
 
           <form onSubmit={handleSubmit} noValidate className="space-y-4">
-            {/* Account Type Selector (BusinessOS Alignment) */}
-            <div className="space-y-2">
-              <label className="text-xs font-semibold text-slate-700 dark:text-zinc-300 flex items-center justify-between">
-                <span>Account Type</span>
-                <span className="text-[11px] font-normal text-slate-500 dark:text-zinc-400">Choose your access role</span>
-              </label>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3" role="radiogroup" aria-label="Account Type">
-                {/* Admin Option */}
-                <button
-                  type="button"
-                  role="radio"
-                  aria-checked={role === 'ADMIN'}
-                  onClick={() => setRole('ADMIN')}
-                  className={`p-3.5 rounded-xl border text-left transition-all relative flex flex-col justify-between ${
-                    role === 'ADMIN'
-                      ? 'border-cyan-500 bg-cyan-50/70 text-slate-900 shadow-sm ring-1 ring-cyan-500/30 dark:border-cyan-500 dark:bg-cyan-950/25 dark:text-white'
-                      : 'border-slate-200 bg-slate-50/80 text-slate-600 hover:border-slate-300 hover:bg-slate-100/70 dark:border-zinc-800 dark:bg-zinc-950/50 dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:text-zinc-200'
-                  }`}
-                >
-                  <div className="flex items-center justify-between w-full mb-2">
-                    <div className="flex items-center gap-2">
-                      <div className={`p-1.5 rounded-lg ${
-                        role === 'ADMIN'
-                          ? 'bg-cyan-100 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-400'
-                          : 'bg-slate-200/60 text-slate-600 dark:bg-zinc-800/80 dark:text-zinc-400'
-                      }`}>
-                        <Shield className="w-4 h-4" />
-                      </div>
-                      <span className={`text-xs font-bold ${
-                        role === 'ADMIN' ? 'text-cyan-950 dark:text-zinc-100' : 'text-slate-800 dark:text-zinc-200'
-                      }`}>Administrator</span>
-                    </div>
-                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                      role === 'ADMIN'
-                        ? 'border-cyan-500 bg-cyan-500 text-white dark:text-zinc-950'
-                        : 'border-slate-300 dark:border-zinc-700 bg-transparent'
-                    }`}>
-                      {role === 'ADMIN' && <Check className="w-3 h-3 stroke-[3]" />}
-                    </div>
-                  </div>
-                  <p className={`text-[11px] leading-relaxed ${
-                    role === 'ADMIN' ? 'text-slate-600 dark:text-zinc-300' : 'text-slate-500 dark:text-zinc-400'
-                  }`}>
-                    Gym staff, managers & owners. Full CRM, payments, attendance & member controls.
-                  </p>
-                </button>
-
-                {/* Member Option */}
-                <button
-                  type="button"
-                  role="radio"
-                  aria-checked={role === 'MEMBER'}
-                  onClick={() => setRole('MEMBER')}
-                  className={`p-3.5 rounded-xl border text-left transition-all relative flex flex-col justify-between ${
-                    role === 'MEMBER'
-                      ? 'border-cyan-500 bg-cyan-50/70 text-slate-900 shadow-sm ring-1 ring-cyan-500/30 dark:border-cyan-500 dark:bg-cyan-950/25 dark:text-white'
-                      : 'border-slate-200 bg-slate-50/80 text-slate-600 hover:border-slate-300 hover:bg-slate-100/70 dark:border-zinc-800 dark:bg-zinc-950/50 dark:text-zinc-400 dark:hover:border-zinc-700 dark:hover:text-zinc-200'
-                  }`}
-                >
-                  <div className="flex items-center justify-between w-full mb-2">
-                    <div className="flex items-center gap-2">
-                      <div className={`p-1.5 rounded-lg ${
-                        role === 'MEMBER'
-                          ? 'bg-cyan-100 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-400'
-                          : 'bg-slate-200/60 text-slate-600 dark:bg-zinc-800/80 dark:text-zinc-400'
-                      }`}>
-                        <Dumbbell className="w-4 h-4" />
-                      </div>
-                      <span className={`text-xs font-bold ${
-                        role === 'MEMBER' ? 'text-cyan-950 dark:text-zinc-100' : 'text-slate-800 dark:text-zinc-200'
-                      }`}>Gym Member</span>
-                    </div>
-                    <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                      role === 'MEMBER'
-                        ? 'border-cyan-500 bg-cyan-500 text-white dark:text-zinc-950'
-                        : 'border-slate-300 dark:border-zinc-700 bg-transparent'
-                    }`}>
-                      {role === 'MEMBER' && <Check className="w-3 h-3 stroke-[3]" />}
-                    </div>
-                  </div>
-                  <p className={`text-[11px] leading-relaxed ${
-                    role === 'MEMBER' ? 'text-slate-600 dark:text-zinc-300' : 'text-slate-500 dark:text-zinc-400'
-                  }`}>
-                    Personal workouts, nutrition guidance, QR check-in pass & membership details.
-                  </p>
-                </button>
-              </div>
-            </div>
+            <p className="rounded-xl border border-slate-200 bg-slate-50/80 p-3 text-[11px] leading-relaxed text-slate-600 dark:border-zinc-800 dark:bg-zinc-950/50 dark:text-zinc-400">
+              New accounts are gym members. This is a public demo, so please don&apos;t enter real personal information. To explore the staff tools, use the read-only demo on the sign-in page.
+            </p>
 
             <div className="space-y-1.5">
               <label htmlFor="register-name" className="text-xs font-semibold text-slate-700 dark:text-zinc-300 flex items-center gap-1.5">

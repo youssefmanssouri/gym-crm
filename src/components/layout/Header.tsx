@@ -308,7 +308,7 @@ export const Header: React.FC<HeaderProps> = ({
             <Avatar src={currentUser.avatar} name={currentUser.name} size="sm" />
             <div className="text-left hidden md:block">
               <p className="text-xs font-semibold text-white leading-tight">{currentUser.name}</p>
-              <p className="text-[10px] text-zinc-400 font-mono leading-tight">{currentUser.role}</p>
+              <p className="text-[10px] text-zinc-400 font-mono leading-tight">{currentUser.demo ? 'READ-ONLY DEMO' : currentUser.role}</p>
             </div>
             <ChevronDown className="w-3.5 h-3.5 text-zinc-400" />
           </button>

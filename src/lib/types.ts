@@ -17,6 +17,8 @@ export interface User {
   phone?: string;
   bio?: string;
   createdAt: string;
+  /** Set on the shared read-only demo session. */
+  demo?: boolean;
 }
 
 export interface MemberProfile {

@@ -38,6 +38,24 @@ async function main() {
     console.log('[SEED] Administrator account already exists.');
   }
 
+  // Shared read-only demo account (reached only through /api/auth/demo).
+  const demoUser = await prisma.user.findUnique({ where: { id: 'usr-demo-viewer' } });
+  if (!demoUser) {
+    await prisma.user.create({
+      data: {
+        id: 'usr-demo-viewer',
+        email: 'demo.viewer@apexfitness.com',
+        passwordHash: bcrypt.hashSync(require('crypto').randomBytes(32).toString('hex'), 10),
+        name: 'Demo Visitor',
+        role: 'ADMIN',
+        status: 'ACTIVE',
+        phone: '+1 (555) 010-0000',
+        bio: 'Shared read-only demo account.',
+      },
+    });
+    console.log('[SEED] Read-only demo account created.');
+  }
+
   // Ensure legacy Unsplash placeholder URLs are cleaned
   const cleanedAvatars = await prisma.user.updateMany({
     where: { avatar: { contains: 'unsplash' } },

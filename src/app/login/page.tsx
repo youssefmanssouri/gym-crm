@@ -15,6 +15,24 @@ export default function LoginPage() {
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isDemoLoading, setIsDemoLoading] = useState(false);
+
+  const handleDemo = async () => {
+    setIsDemoLoading(true);
+    setErrorMessage(null);
+    try {
+      const res = await fetch('/api/auth/demo', { method: 'POST' });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data.success) {
+        window.location.href = '/';
+        return;
+      }
+      setErrorMessage(data.error || 'The demo is not available right now.');
+    } catch {
+      setErrorMessage('The demo is not available right now.');
+    }
+    setIsDemoLoading(false);
+  };
 
   const validate = (): boolean => {
     const errors: { email?: string; password?: string } = {};
@@ -167,6 +185,23 @@ export default function LoginPage() {
               {isLoading ? 'Verifying Credentials...' : 'Sign In'}
             </Button>
           </form>
+
+          {/* Read-only public demo */}
+          <div className="mt-4">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isDemoLoading}
+              onClick={handleDemo}
+              className="w-full justify-center py-2.5"
+              icon={isDemoLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
+            >
+              {isDemoLoading ? 'Opening demo...' : 'Explore the read-only demo'}
+            </Button>
+            <p className="mt-2 text-center text-[11px] text-slate-500 dark:text-zinc-400">
+              Browse every staff screen with sample data. Changes are disabled.
+            </p>
+          </div>
 
           {/* Registration Navigation Link */}
           <div className="mt-6 pt-5 border-t border-slate-200 dark:border-zinc-800/80 text-center space-y-1">
