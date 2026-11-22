@@ -143,12 +143,12 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
               </div>
             </div>
             <div className="mt-3 flex items-baseline gap-2">
-              <span className="text-3xl font-black text-white tracking-tight">${data.kpis.monthlyRevenue.toLocaleString()}</span>
+              <span className="text-3xl font-black text-white tracking-tight">${data.kpis.monthlyRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               <span className="text-xs text-emerald-400 flex items-center font-semibold">
                 <ArrowUpRight className="w-3.5 h-3.5" /> MTD
               </span>
             </div>
-            <p className="text-[11px] text-zinc-500 mt-1">${data.kpis.weeklyRevenue.toLocaleString()} collected past 7 days</p>
+            <p className="text-[11px] text-zinc-500 mt-1">${data.kpis.weeklyRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} collected past 7 days</p>
           </Card>
 
           {/* Today's Check-ins */}
@@ -294,7 +294,7 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
               <div className="p-3 rounded-xl bg-zinc-900/80 border border-zinc-800">
                 <p className="font-semibold text-white">Monthly Cashflow</p>
                 <p className="text-[11px] font-normal text-zinc-400 mt-1">
-                  ${data.kpis.monthlyRevenue.toLocaleString()} recorded month-to-date across {data.kpis.activeMembers} active member accounts.
+                  ${data.kpis.monthlyRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} recorded month-to-date across {data.kpis.activeMembers} active member accounts.
                 </p>
               </div>
             </div>

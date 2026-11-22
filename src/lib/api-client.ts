@@ -221,8 +221,8 @@ export async function apiCreatePayment(payload: {
   return data.payment;
 }
 
-export async function apiGetAttendance(): Promise<AttendanceRecord[]> {
-  const res = await fetch('/api/attendance', { cache: 'no-store' });
+export async function apiGetAttendance(options: { todayOnly?: boolean } = {}): Promise<AttendanceRecord[]> {
+  const res = await fetch(options.todayOnly ? '/api/attendance?scope=today' : '/api/attendance', { cache: 'no-store' });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Failed to fetch attendance');
   return data.attendance || [];

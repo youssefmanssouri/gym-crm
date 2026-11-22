@@ -28,7 +28,7 @@ export const AttendanceModule: React.FC<AttendanceModuleProps> = ({ onScanComple
     setIsLoading(true);
     setErrorMessage(null);
     try {
-      const data = await apiGetAttendance();
+      const data = await apiGetAttendance({ todayOnly: true });
       setAttendanceList(data);
     } catch (err: any) {
       setErrorMessage(err.message || 'Failed to load attendance log');
