@@ -352,6 +352,175 @@ async function main() {
     }
   }
 
+  // 6. Demo activity for screenshots and the public demo.
+  // Every member below is fictional and uses a reserved example domain (RFC 2606).
+  // Rows use "demo-" ids; each run deletes and recreates only those rows, so the
+  // dates stay relative to the moment the seed runs. Core accounts are untouched.
+  await prisma.payment.deleteMany({ where: { id: { startsWith: 'demo-' } } });
+  await prisma.user.deleteMany({ where: { id: { startsWith: 'demo-' } } }); // cascades profiles, memberships, attendance, payments
+
+  const DAY = 24 * 60 * 60 * 1000;
+  const now = new Date();
+  const at = (daysAgo: number, hour: number, minute = 0) => {
+    const d = new Date(now.getTime() - daysAgo * DAY);
+    d.setHours(hour, minute, 0, 0);
+    return d;
+  };
+
+  const planPrice: Record<string, number> = { 'plan-basic': 59, 'plan-quarterly': 159, 'plan-vip': 599, 'plan-pt-pkg': 450 };
+  const planMonths: Record<string, number> = { 'plan-basic': 1, 'plan-quarterly': 3, 'plan-vip': 12, 'plan-pt-pkg': 1 };
+
+  const demoMembers: { name: string; gender: string; goal: string; plan: string; joined: number; status: MembershipStatus; weight: number; target: number }[] = [
+    { name: 'Yasmine Ouali', gender: 'Female', goal: 'Weight Loss', plan: 'plan-quarterly', joined: 172, status: MembershipStatus.ACTIVE, weight: 71, target: 64 },
+    { name: 'Mehdi Lahlou', gender: 'Male', goal: 'Hypertrophy & Strength', plan: 'plan-vip', joined: 168, status: MembershipStatus.ACTIVE, weight: 84, target: 88 },
+    { name: 'Clara Jensen', gender: 'Female', goal: 'Endurance', plan: 'plan-basic', joined: 160, status: MembershipStatus.ACTIVE, weight: 60, target: 58 },
+    { name: 'Hamza Bennani', gender: 'Male', goal: 'General Fitness', plan: 'plan-basic', joined: 151, status: MembershipStatus.ACTIVE, weight: 79, target: 75 },
+    { name: 'Aya Mansouri', gender: 'Female', goal: 'Toning', plan: 'plan-quarterly', joined: 140, status: MembershipStatus.ACTIVE, weight: 63, target: 60 },
+    { name: 'Lucas Martin', gender: 'Male', goal: 'Strength', plan: 'plan-pt-pkg', joined: 133, status: MembershipStatus.ACTIVE, weight: 90, target: 85 },
+    { name: 'Salma Idrissi', gender: 'Female', goal: 'Weight Loss', plan: 'plan-basic', joined: 126, status: MembershipStatus.ACTIVE, weight: 77, target: 68 },
+    { name: 'Noah Fischer', gender: 'Male', goal: 'Endurance', plan: 'plan-quarterly', joined: 119, status: MembershipStatus.ACTIVE, weight: 72, target: 70 },
+    { name: 'Imane Chakir', gender: 'Female', goal: 'General Fitness', plan: 'plan-vip', joined: 112, status: MembershipStatus.ACTIVE, weight: 58, target: 57 },
+    { name: 'Adam Rahmani', gender: 'Male', goal: 'Hypertrophy & Strength', plan: 'plan-basic', joined: 104, status: MembershipStatus.ACTIVE, weight: 76, target: 82 },
+    { name: 'Julia Novak', gender: 'Female', goal: 'Mobility', plan: 'plan-basic', joined: 97, status: MembershipStatus.ACTIVE, weight: 66, target: 63 },
+    { name: 'Othmane Kettani', gender: 'Male', goal: 'Weight Loss', plan: 'plan-quarterly', joined: 90, status: MembershipStatus.ACTIVE, weight: 98, target: 88 },
+    { name: 'Lina Haddou', gender: 'Female', goal: 'Toning', plan: 'plan-basic', joined: 82, status: MembershipStatus.ACTIVE, weight: 61, target: 59 },
+    { name: 'Ethan Clarke', gender: 'Male', goal: 'Strength', plan: 'plan-quarterly', joined: 74, status: MembershipStatus.ACTIVE, weight: 81, target: 84 },
+    { name: 'Rania Sefrioui', gender: 'Female', goal: 'General Fitness', plan: 'plan-basic', joined: 66, status: MembershipStatus.ACTIVE, weight: 67, target: 64 },
+    { name: 'Youness Amrani', gender: 'Male', goal: 'Endurance', plan: 'plan-basic', joined: 57, status: MembershipStatus.ACTIVE, weight: 74, target: 72 },
+    { name: 'Emma Laurent', gender: 'Female', goal: 'Weight Loss', plan: 'plan-pt-pkg', joined: 49, status: MembershipStatus.ACTIVE, weight: 74, target: 66 },
+    { name: 'Karim Fassi', gender: 'Male', goal: 'Hypertrophy & Strength', plan: 'plan-quarterly', joined: 41, status: MembershipStatus.ACTIVE, weight: 78, target: 83 },
+    { name: 'Sara Bouzid', gender: 'Female', goal: 'Toning', plan: 'plan-basic', joined: 30, status: MembershipStatus.ACTIVE, weight: 59, target: 57 },
+    { name: 'Daniel Price', gender: 'Male', goal: 'General Fitness', plan: 'plan-basic', joined: 22, status: MembershipStatus.ACTIVE, weight: 85, target: 80 },
+    { name: 'Nour El Amine', gender: 'Female', goal: 'Endurance', plan: 'plan-basic', joined: 12, status: MembershipStatus.ACTIVE, weight: 62, target: 60 },
+    { name: 'Tarik Zouhair', gender: 'Male', goal: 'Weight Loss', plan: 'plan-basic', joined: 140, status: MembershipStatus.EXPIRED, weight: 92, target: 84 },
+    { name: 'Hiba Alami', gender: 'Female', goal: 'General Fitness', plan: 'plan-quarterly', joined: 125, status: MembershipStatus.FROZEN, weight: 64, target: 62 },
+    { name: 'Marco Bianchi', gender: 'Male', goal: 'Strength', plan: 'plan-basic', joined: 110, status: MembershipStatus.EXPIRED, weight: 83, target: 80 },
+  ];
+
+  const shopProducts = await prisma.product.findMany({ orderBy: { sku: 'asc' } });
+  const demoUserIds: string[] = [];
+  let invoiceSeq = 1;
+
+  for (const [index, m] of demoMembers.entries()) {
+    const n = String(index + 1).padStart(2, '0');
+    const userId = `demo-user-${n}`;
+    const [first, ...rest] = m.name.toLowerCase().split(' ');
+    const joinDate = at(m.joined, 10);
+    await prisma.user.create({
+      data: {
+        id: userId,
+        email: `${first}.${rest.join('')}@members.example`,
+        passwordHash: memberHash,
+        name: m.name,
+        role: UserRole.MEMBER,
+        status: m.status === MembershipStatus.ACTIVE || m.status === MembershipStatus.FROZEN ? UserStatus.ACTIVE : UserStatus.INACTIVE,
+        phone: `+212 600-010-${String(100 + index)}`,
+        createdAt: joinDate,
+      },
+    });
+    demoUserIds.push(userId);
+
+    const profile = await prisma.memberProfile.create({
+      data: {
+        id: `demo-profile-${n}`,
+        userId,
+        gender: m.gender,
+        heightCm: m.gender === 'Female' ? 163 + (index % 8) : 172 + (index % 10),
+        weightKg: m.weight,
+        targetWeightKg: m.target,
+        fitnessGoal: m.goal,
+        qrCode: `APEX-M-DEMO-${n}`,
+        joinDate,
+      },
+    });
+
+    // Membership history: consecutive periods from the join date until today.
+    const months = planMonths[m.plan];
+    let start = joinDate;
+    let period = 0;
+    const stopAt = m.status === MembershipStatus.ACTIVE ? now : at(30 + index, 9);
+    while (start <= stopAt) {
+      const end = new Date(start);
+      end.setMonth(end.getMonth() + months);
+      const isCurrent = end > stopAt;
+      const membershipId = `demo-sub-${n}-${period}`;
+      await prisma.memberMembership.create({
+        data: {
+          id: membershipId,
+          memberId: profile.id,
+          planId: m.plan,
+          startDate: start,
+          endDate: end,
+          status: isCurrent ? m.status : MembershipStatus.EXPIRED,
+          autoRenew: m.status === MembershipStatus.ACTIVE,
+          pricePaid: planPrice[m.plan],
+        },
+      });
+      await prisma.payment.create({
+        data: {
+          id: `demo-pay-${String(invoiceSeq).padStart(4, '0')}`,
+          userId,
+          membershipId,
+          amount: planPrice[m.plan],
+          paymentMethod: index % 3 === 0 ? PaymentMethod.RECURRING : index % 3 === 1 ? PaymentMethod.CARD : PaymentMethod.CASH,
+          status: PaymentStatus.COMPLETED,
+          invoiceNumber: `INV-DEMO-${String(invoiceSeq).padStart(4, '0')}`,
+          description: `Membership: ${m.plan === 'plan-basic' ? 'Standard Monthly' : m.plan === 'plan-quarterly' ? 'Quarterly Athlete' : m.plan === 'plan-vip' ? 'VIP All-Access Annual' : 'Personal Training Bundle'}`,
+          date: start,
+        },
+      });
+      invoiceSeq++;
+      start = end;
+      period++;
+    }
+  }
+
+  // Pro shop sales across the last six months.
+  for (let i = 0; i < 48 && shopProducts.length > 0; i++) {
+    const product = shopProducts[i % shopProducts.length];
+    const quantity = (i % 4) + 1;
+    const buyer = demoUserIds[(i * 7) % demoUserIds.length];
+    await prisma.payment.create({
+      data: {
+        id: `demo-pay-${String(invoiceSeq).padStart(4, '0')}`,
+        userId: buyer,
+        amount: Math.round(product.price * quantity * 100) / 100,
+        paymentMethod: i % 2 === 0 ? PaymentMethod.CARD : PaymentMethod.CASH,
+        status: PaymentStatus.COMPLETED,
+        invoiceNumber: `INV-POS-DEMO-${String(invoiceSeq).padStart(4, '0')}`,
+        description: `Pro Shop POS Sale: ${product.name} (x${quantity})`,
+        date: at(Math.floor((i * 175) / 48), 8 + (i % 12), (i * 13) % 60),
+        orderItems: { create: { productId: product.id, quantity, unitPrice: product.price } },
+      },
+    });
+    invoiceSeq++;
+  }
+
+  // Check-ins over the last 30 days, with morning and evening peaks. Today's
+  // check-ins stop at the current hour so nothing is dated in the future.
+  const peakHours = [6, 7, 7, 8, 12, 17, 18, 18, 19, 20];
+  const activeIds = demoUserIds.filter((_, i) => demoMembers[i].status === MembershipStatus.ACTIVE);
+  let attendanceSeq = 1;
+  for (let day = 29; day >= 0; day--) {
+    const visits = 9 + ((day * 5) % 7);
+    for (let v = 0; v < visits; v++) {
+      const hour = peakHours[(day + v * 3) % peakHours.length];
+      const minute = (v * 11 + day * 7) % 60;
+      const checkIn = at(day, hour, minute);
+      if (checkIn > now) continue;
+      await prisma.attendance.create({
+        data: {
+          id: `demo-att-${String(attendanceSeq++).padStart(4, '0')}`,
+          userId: activeIds[(day * 3 + v) % activeIds.length],
+          checkInTime: checkIn,
+          checkOutTime: new Date(checkIn.getTime() + (50 + ((v * 17) % 50)) * 60 * 1000),
+          method: v % 4 === 0 ? CheckInMethod.RECEPTIONIST : CheckInMethod.QR_CODE,
+          verifiedBy: 'Elena Rostova',
+        },
+      });
+    }
+  }
+
   console.log('Seeding completed successfully!');
 }
 
