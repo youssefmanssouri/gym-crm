@@ -1,5 +1,6 @@
 import { PrismaClient, UserRole, UserStatus, PlanType, MembershipStatus, PaymentMethod, PaymentStatus, ProductCategory, CheckInMethod } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { randomBytes } from 'crypto';
 
 const prisma = new PrismaClient();
 
@@ -96,6 +97,20 @@ async function main() {
       bio: 'Avid powerlifter targeting a 500lb deadlift.',
     },
   ];
+
+  // Shared read-only demo account: reached only through /api/auth/demo, so its
+  // password is random and never used. The middleware blocks its changes.
+  usersToSeed.push({
+    id: 'usr-demo-viewer',
+    email: 'demo.viewer@apexfitness.com',
+    passwordHash: bcrypt.hashSync(randomBytes(32).toString('hex'), 10),
+    name: 'Demo Visitor',
+    role: UserRole.ADMIN,
+    status: UserStatus.ACTIVE,
+    avatar: null,
+    phone: '+1 (555) 010-0000',
+    bio: 'Shared read-only demo account.',
+  });
 
   for (const u of usersToSeed) {
     const existing = await prisma.user.findUnique({ where: { email: u.email } });

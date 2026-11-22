@@ -13,6 +13,8 @@ export interface SessionUser {
   avatar?: string;
   status: string;
   phone?: string;
+  /** Read-only public demo session; data-changing API requests are rejected. */
+  demo?: boolean;
 }
 
 export interface SessionTokenPayload {

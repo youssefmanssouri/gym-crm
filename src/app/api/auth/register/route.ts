@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     const normalizedEmail = email.toLowerCase().trim();
     const avatar = null;
     const uniqueQr = `APEX-M-${Date.now().toString(36).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
-    const accountRole: UserRole = role === 'MEMBER' ? 'MEMBER' : 'ADMIN';
+    const accountRole: UserRole = role;
 
     let sessionUser: SessionUser;
 
