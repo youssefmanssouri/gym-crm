@@ -5,6 +5,7 @@ import { createMemberSchema } from '@/lib/validations';
 import { MemberProfile } from '@/lib/types';
 import { recordAuditLog, extractClientIp } from '@/lib/audit';
 import bcrypt from 'bcryptjs';
+import crypto from 'crypto';
 
 export const dynamic = 'force-dynamic';
 
@@ -162,9 +163,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // Generate collision-resistant unique QR code
+    // Generate collision-resistant unique QR code and random initial password hash
     const uniqueQr = `APEX-M-${Date.now().toString(36).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
-    const defaultMemberPassword = bcrypt.hashSync('ApexMember2026!', 10);
+    const defaultMemberPassword = bcrypt.hashSync(crypto.randomBytes(24).toString('base64url'), 10);
 
     const now = new Date();
     const endDate = new Date(now.getTime() + plan.durationMonths * 30 * 24 * 60 * 60 * 1000);

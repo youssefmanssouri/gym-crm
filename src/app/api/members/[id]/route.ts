@@ -10,7 +10,7 @@ interface RouteParams {
 
 export async function GET(request: Request, { params }: RouteParams) {
   try {
-    await requireAuth();
+    const authUser = await requireAuth();
     const { id } = params;
 
     const profile = await prisma.memberProfile.findUnique({
@@ -29,6 +29,13 @@ export async function GET(request: Request, { params }: RouteParams) {
       return NextResponse.json(
         { success: false, error: 'Member not found' },
         { status: 404 }
+      );
+    }
+
+    if (authUser.role === 'MEMBER' && profile.userId !== authUser.id) {
+      return NextResponse.json(
+        { success: false, error: 'Forbidden: You may only view your own member profile' },
+        { status: 403 }
       );
     }
 

@@ -96,7 +96,6 @@ export async function POST(request: Request) {
         {
           success: false,
           error: 'Database service unavailable. Account could not be created.',
-          details: dbErr instanceof Error ? dbErr.message : String(dbErr),
         },
         { status: 503 }
       );

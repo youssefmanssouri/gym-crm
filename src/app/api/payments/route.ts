@@ -9,10 +9,12 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    await requireAuth();
+    const authUser = await requireAuth();
+    const scopeWhere = authUser.role === 'MEMBER' ? { userId: authUser.id } : {};
 
     const [payments, aggregateCompleted, aggregatePending, countRefunded, totalCount] = await Promise.all([
       prisma.payment.findMany({
+        where: scopeWhere,
         include: {
           user: true,
           membership: {
@@ -26,16 +28,18 @@ export async function GET() {
       }),
       prisma.payment.aggregate({
         _sum: { amount: true },
-        where: { status: 'COMPLETED' },
+        where: { ...scopeWhere, status: 'COMPLETED' },
       }),
       prisma.payment.aggregate({
         _sum: { amount: true },
-        where: { status: 'PENDING' },
+        where: { ...scopeWhere, status: 'PENDING' },
       }),
       prisma.payment.count({
-        where: { status: 'REFUNDED' },
+        where: { ...scopeWhere, status: 'REFUNDED' },
       }),
-      prisma.payment.count(),
+      prisma.payment.count({
+        where: scopeWhere,
+      }),
     ]);
 
     const formattedPayments: PaymentRecord[] = payments.map((p) => ({
