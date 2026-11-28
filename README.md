@@ -131,3 +131,9 @@ npm run build
 - Portfolio: [https://www.youssefmanssouri.site](https://www.youssefmanssouri.site)
 - LinkedIn: [linkedin.com/in/youssef-manssouri-24b4662ba](https://www.linkedin.com/in/youssef-manssouri-24b4662ba/)
 - Email: [manssouriyoussef33@gmail.com](mailto:manssouriyoussef33@gmail.com)
+
+---
+
+## 📄 License
+
+Licensed under the [Apache License, Version 2.0](LICENSE). Copyright 2026 Youssef Manssouri.

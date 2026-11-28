@@ -167,6 +167,7 @@ export default function GymCRMMainApp() {
         <main className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto">
           {currentTab === 'dashboard' && (
             <DashboardModule
+              userRole={currentRole}
               onNavigate={navigateToTab}
               onOpenCheckIn={() => setIsCheckInModalOpen(true)}
               onOpenAddMember={() => navigateToTab('members')}

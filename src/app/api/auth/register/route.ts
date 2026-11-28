@@ -4,10 +4,20 @@ import { registerSchema } from '@/lib/validations';
 import { createSessionToken, setSessionCookie, SessionUser } from '@/lib/auth-server';
 import { UserRole } from '@/lib/types';
 import { recordAuditLog, extractClientIp } from '@/lib/audit';
+import { checkRateLimit } from '@/lib/rate-limit';
 import bcrypt from 'bcryptjs';
 
 export async function POST(request: Request) {
   try {
+    const clientIp = extractClientIp(request);
+    const limit = checkRateLimit(`register:${clientIp}`, 5, 15 * 60 * 1000);
+    if (!limit.allowed) {
+      return NextResponse.json(
+        { success: false, error: 'Too many registration attempts. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': String(limit.retryAfterSeconds) } }
+      );
+    }
+
     const body = await request.json().catch(() => ({}));
     const parsed = registerSchema.safeParse(body);
 
@@ -115,9 +125,8 @@ export async function POST(request: Request) {
     );
   } catch (error: unknown) {
     console.error('Registration handler error:', error);
-    const message = error instanceof Error ? error.message : 'Registration failed';
     return NextResponse.json(
-      { success: false, error: message },
+      { success: false, error: 'Registration failed' },
       { status: 500 }
     );
   }

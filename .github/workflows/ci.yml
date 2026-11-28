@@ -18,10 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           persist-credentials: false
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@1d0ff469b7ec7b3cb9d8673fde0c81c44821de2a # v4.2.0
         with:
           node-version: "22"
           cache: npm
@@ -34,9 +34,11 @@ jobs:
         run: npm run lint
       - name: Type-check
         run: npx tsc --noEmit
+      - name: Security regression tests
+        run: npm test
       - name: Production build
         run: npm run build
         env:
           DATABASE_URL: "postgresql://postgres:postgres@localhost:5432/gym_crm?schema=public"
           DIRECT_URL: "postgresql://postgres:postgres@localhost:5432/gym_crm?schema=public"
-          NEXTAUTH_SECRET: "ci-build-placeholder-secret-not-for-prod"
+          SESSION_SECRET: "ci-build-placeholder-secret-not-for-prod"

@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    await requireAuth();
+    await requireRole(['ADMIN', 'MANAGER', 'RECEPTIONIST', 'TRAINER']);
 
     const products = await prisma.product.findMany({
       orderBy: { name: 'asc' },
@@ -35,6 +35,9 @@ export async function GET() {
   } catch (error: unknown) {
     if (error instanceof Error && error.message === 'UNAUTHORIZED') {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+    if (error instanceof Error && error.message === 'FORBIDDEN') {
+      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
     }
     console.error('Failed to retrieve inventory catalog from database:', error);
     return NextResponse.json(

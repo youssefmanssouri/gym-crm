@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Users,
   DollarSign,
@@ -29,23 +29,28 @@ import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { Badge } from '../ui/Badge';
 import { apiGetAnalytics, AnalyticsResponse } from '@/lib/api-client';
+import { UserRole } from '@/lib/types';
 
 interface DashboardModuleProps {
+  userRole?: UserRole;
   onNavigate: (tab: string) => void;
   onOpenCheckIn: () => void;
   onOpenAddMember: () => void;
 }
 
 export const DashboardModule: React.FC<DashboardModuleProps> = ({
+  userRole = 'ADMIN',
   onNavigate,
   onOpenCheckIn,
   onOpenAddMember,
 }) => {
+  const isMember = userRole === 'MEMBER';
   const [data, setData] = useState<AnalyticsResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!isMember);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async () => {
+    if (isMember) return;
     setIsLoading(true);
     setError(null);
     try {
@@ -56,11 +61,41 @@ export const DashboardModule: React.FC<DashboardModuleProps> = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [isMember]);
 
   useEffect(() => {
-    fetchAnalytics();
-  }, []);
+    if (!isMember) {
+      fetchAnalytics();
+    }
+  }, [isMember, fetchAnalytics]);
+
+  if (isMember) {
+    return (
+      <div className="space-y-6 pb-12">
+        <div className="bg-zinc-900/60 p-6 rounded-2xl border border-zinc-800 shadow-lg">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="inline-block w-2 h-2 rounded-full bg-emerald-400" />
+            <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Member Portal</span>
+          </div>
+          <h2 className="text-2xl font-bold tracking-tight text-white">Welcome to Apex Fitness</h2>
+          <p className="text-xs text-zinc-400 mt-1 max-w-xl">
+            Access your assigned workout routines, nutrition protocols, and the AI fitness assistant.
+          </p>
+          <div className="mt-5 flex flex-wrap gap-3">
+            <Button variant="primary" size="sm" onClick={() => onNavigate('workouts')}>
+              Workouts &amp; Routines
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => onNavigate('nutrition')}>
+              Nutrition Planner
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => onNavigate('ai-suite')}>
+              AI Assistant
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 pb-12">
