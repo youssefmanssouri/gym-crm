@@ -23,12 +23,23 @@ export interface SessionTokenPayload {
   iat: number;
 }
 
-function getSessionSecret(): string {
-  return (
-    process.env.SESSION_SECRET ||
-    process.env.NEXTAUTH_SECRET ||
-    'apex-gym-crm-default-secure-secret-key-2026'
-  );
+const DEV_FALLBACK_SECRET = 'apex-gym-crm-default-secure-secret-key-2026';
+const DISALLOWED_PRODUCTION_SECRETS = new Set([
+  DEV_FALLBACK_SECRET,
+  'docker-production-secret-key-gym-crm',
+]);
+
+export function getSessionSecret(): string {
+  const secret = (process.env.SESSION_SECRET || process.env.NEXTAUTH_SECRET || '').trim();
+  if (process.env.NODE_ENV === 'production') {
+    if (!secret || DISALLOWED_PRODUCTION_SECRETS.has(secret)) {
+      throw new Error(
+        'FATAL SECURITY CONFIGURATION: In production mode, SESSION_SECRET or NEXTAUTH_SECRET must be explicitly configured and cannot use a default key.'
+      );
+    }
+    return secret;
+  }
+  return secret || DEV_FALLBACK_SECRET;
 }
 
 /**
@@ -56,12 +67,12 @@ export function createSessionToken(user: SessionUser): string {
  * Verifies the HMAC-SHA256 signature and expiration of a session token
  */
 export function verifySessionToken(token: string): SessionUser | null {
+  const secret = getSessionSecret();
   try {
     const parts = token.split('.');
     if (parts.length !== 2) return null;
 
     const [payloadString, signature] = parts;
-    const secret = getSessionSecret();
     const expectedSignature = crypto
       .createHmac('sha256', secret)
       .update(payloadString)
