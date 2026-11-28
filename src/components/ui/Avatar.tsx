@@ -18,6 +18,22 @@ const PALETTE = [
   'bg-zinc-800 text-zinc-300 border-zinc-700',
 ];
 
+function isPlaceholderAvatarUrl(src: string | null | undefined): boolean {
+  if (!src) return false;
+  try {
+    const { hostname, pathname } = new URL(src, 'https://localhost.invalid');
+    const normalizedHost = hostname.toLowerCase();
+    return (
+      normalizedHost === 'unsplash.com' ||
+      normalizedHost.endsWith('.unsplash.com') ||
+      normalizedHost.includes('placeholder') ||
+      pathname.toLowerCase().includes('placeholder')
+    );
+  } catch {
+    return true;
+  }
+}
+
 export const Avatar: React.FC<AvatarProps> = ({
   src,
   name,
@@ -54,7 +70,7 @@ export const Avatar: React.FC<AvatarProps> = ({
   };
 
   // Reject fragile external unsplash URLs in favor of clean deterministic initials
-  const isExternalPlaceholder = Boolean(src && (src.includes('unsplash.com') || src.includes('placeholder')));
+  const isExternalPlaceholder = isPlaceholderAvatarUrl(src);
   const canDisplayImage = Boolean(src && !hasError && !isExternalPlaceholder);
 
   if (canDisplayImage && src) {
