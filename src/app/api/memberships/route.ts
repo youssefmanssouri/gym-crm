@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAuth, requireRole } from '@/lib/auth-server';
 import { prisma } from '@/lib/db';
+import { createMembershipPlanSchema } from '@/lib/validations';
 import { MembershipPlan } from '@/lib/types';
 import { recordAuditLog, extractClientIp } from '@/lib/audit';
 
@@ -48,20 +49,25 @@ export async function POST(request: Request) {
   try {
     const authUser = await requireRole(['ADMIN', 'MANAGER']);
     const ipAddress = extractClientIp(request);
-    const body = await request.json().catch(() => ({}));
-    const { name, description, durationMonths, price, type, features } = body;
+    const body = await request.json().catch(() => null);
+    const parsed = createMembershipPlanSchema.safeParse(body);
 
-    if (!name || typeof price !== 'number') {
-      return NextResponse.json({ success: false, error: 'Name and numeric price are required' }, { status: 400 });
+    if (!parsed.success) {
+      return NextResponse.json(
+        { success: false, error: 'Validation failed', details: parsed.error.format() },
+        { status: 400 }
+      );
     }
+
+    const { name, description, durationMonths, price, type, features } = parsed.data;
 
     const newPlan = await prisma.membershipPlan.create({
       data: {
         name,
-        description: description || '',
-        durationMonths: durationMonths || 1,
+        description,
+        durationMonths,
         price,
-        type: type || 'MONTHLY',
+        type,
         features: Array.isArray(features) ? features.join(', ') : (features || ''),
         isActive: true,
       },

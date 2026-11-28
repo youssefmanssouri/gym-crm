@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireRole } from '@/lib/auth-server';
 import { prisma } from '@/lib/db';
+import { updateProductSchema } from '@/lib/validations';
 import { recordAuditLog, extractClientIp } from '@/lib/audit';
 
 interface RouteParams {
@@ -12,22 +13,26 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     const authUser = await requireRole(['ADMIN', 'MANAGER']);
     const ipAddress = extractClientIp(request);
     const { id } = params;
-    const body = await request.json().catch(() => ({}));
+    const body = await request.json().catch(() => null);
+    const parsed = updateProductSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { success: false, error: 'Validation failed', details: parsed.error.format() },
+        { status: 400 }
+      );
+    }
 
     const updated = await prisma.product.update({
       where: { id },
-      data: {
-        price: typeof body.price === 'number' ? body.price : undefined,
-        stockQuantity: typeof body.stockQuantity === 'number' ? body.stockQuantity : undefined,
-        minStockLevel: typeof body.minStockLevel === 'number' ? body.minStockLevel : undefined,
-      },
+      data: parsed.data,
     });
 
     await recordAuditLog({
       actor: authUser,
       action: 'UPDATE_PRODUCT',
       entity: 'Product',
-      details: `Updated product "${updated.name}" (ID: ${id}). Changes: ${Object.keys(body).join(', ')}`,
+      details: `Updated product "${updated.name}" (ID: ${id}). Changes: ${Object.keys(parsed.data).join(', ')}`,
       ipAddress,
     });
 

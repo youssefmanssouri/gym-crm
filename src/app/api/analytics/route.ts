@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
-import { requireAuth } from '@/lib/auth-server';
+import { requireRole } from '@/lib/auth-server';
 import { prisma } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    await requireAuth();
+    await requireRole(['ADMIN', 'MANAGER', 'RECEPTIONIST', 'TRAINER']);
 
     const now = new Date();
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -197,6 +197,9 @@ export async function GET() {
   } catch (error: any) {
     if (error.message === 'UNAUTHORIZED') {
       return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
+    }
+    if (error.message === 'FORBIDDEN') {
+      return NextResponse.json({ success: false, error: 'Forbidden: Staff role required' }, { status: 403 });
     }
     console.error('Failed to compute dashboard analytics from database:', error);
     return NextResponse.json(

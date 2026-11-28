@@ -4,6 +4,8 @@ import {
   createSessionToken,
   setSessionCookie,
 } from '@/lib/auth-server';
+import { extractClientIp } from '@/lib/audit';
+import { checkRateLimit } from '@/lib/rate-limit';
 
 export async function POST(request: Request) {
   try {
@@ -14,6 +16,16 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { success: false, error: 'Email and password are required' },
         { status: 400 }
+      );
+    }
+
+    const clientIp = extractClientIp(request);
+    const rateKey = `login:${clientIp}:${email.trim().toLowerCase()}`;
+    const limit = checkRateLimit(rateKey, 10, 15 * 60 * 1000);
+    if (!limit.allowed) {
+      return NextResponse.json(
+        { success: false, error: 'Too many sign-in attempts. Please try again later.' },
+        { status: 429, headers: { 'Retry-After': String(limit.retryAfterSeconds) } }
       );
     }
 
@@ -33,9 +45,9 @@ export async function POST(request: Request) {
       user,
     });
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Authentication failed';
+    console.error('Login error:', error);
     return NextResponse.json(
-      { success: false, error: message },
+      { success: false, error: 'Authentication failed' },
       { status: 500 }
     );
   }

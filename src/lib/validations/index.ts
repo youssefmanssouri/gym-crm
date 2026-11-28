@@ -61,11 +61,30 @@ export const createProductSchema = z.object({
   name: z.string().min(2, 'Product name is required').max(120),
   category: z.enum(['SUPPLEMENT', 'DRINK', 'MERCHANDISE', 'EQUIPMENT', 'OTHER']).default('SUPPLEMENT'),
   sku: z.string().min(2, 'SKU must be at least 2 characters').max(50),
-  price: z.number().positive('Price must be greater than 0'),
-  costPrice: z.number().min(0).optional(),
-  stockQuantity: z.number().int().min(0, 'Stock cannot be negative').default(0),
-  minStockLevel: z.number().int().min(0).default(5),
+  price: z.number().finite().positive('Price must be greater than 0').max(100000),
+  costPrice: z.number().finite().min(0).max(100000).optional(),
+  stockQuantity: z.number().int().min(0, 'Stock cannot be negative').max(1000000).default(0),
+  minStockLevel: z.number().int().min(0).max(100000).default(5),
   supplier: z.string().max(120).optional().default('Apex Fitness Logistics'),
+});
+
+export const updateProductSchema = z
+  .object({
+    price: z.number().finite().positive('Price must be greater than 0').max(100000).optional(),
+    stockQuantity: z.number().int().min(0, 'Stock cannot be negative').max(1000000).optional(),
+    minStockLevel: z.number().int().min(0).max(100000).optional(),
+  })
+  .refine((data) => Object.keys(data).length > 0, {
+    message: 'At least one updatable field is required',
+  });
+
+export const createMembershipPlanSchema = z.object({
+  name: z.string().trim().min(2, 'Plan name must be at least 2 characters').max(100),
+  description: z.string().trim().max(500).optional().default(''),
+  durationMonths: z.number().int().min(1, 'Duration must be at least 1 month').max(120).default(1),
+  price: z.number().finite().positive('Price must be greater than 0').max(100000),
+  type: z.enum(['MONTHLY', 'QUARTERLY', 'ANNUAL', 'VIP']).default('MONTHLY'),
+  features: z.union([z.array(z.string().trim().max(120)).max(25), z.string().max(1000)]).optional(),
 });
 
 export const checkoutProductSchema = z.object({
