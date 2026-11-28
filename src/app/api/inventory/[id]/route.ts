@@ -5,14 +5,14 @@ import { updateProductSchema } from '@/lib/validations';
 import { recordAuditLog, extractClientIp } from '@/lib/audit';
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export async function PATCH(request: Request, { params }: RouteParams) {
   try {
     const authUser = await requireRole(['ADMIN', 'MANAGER']);
     const ipAddress = extractClientIp(request);
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json().catch(() => null);
     const parsed = updateProductSchema.safeParse(body);
 
@@ -50,7 +50,7 @@ export async function DELETE(request: Request, { params }: RouteParams) {
   try {
     const authUser = await requireRole(['ADMIN']);
     const ipAddress = extractClientIp(request);
-    const { id } = params;
+    const { id } = await params;
 
     const existing = await prisma.product.findUnique({ where: { id } });
     if (!existing) {

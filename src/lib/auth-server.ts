@@ -101,8 +101,9 @@ export function verifySessionToken(token: string): SessionUser | null {
 /**
  * Sets the secure HTTP-only session cookie
  */
-export function setSessionCookie(token: string): void {
-  cookies().set(SESSION_COOKIE_NAME, token, {
+export async function setSessionCookie(token: string): Promise<void> {
+  const cookieStore = await cookies();
+  cookieStore.set(SESSION_COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
@@ -114,8 +115,9 @@ export function setSessionCookie(token: string): void {
 /**
  * Clears the session cookie on logout
  */
-export function clearSessionCookie(): void {
-  cookies().set(SESSION_COOKIE_NAME, '', {
+export async function clearSessionCookie(): Promise<void> {
+  const cookieStore = await cookies();
+  cookieStore.set(SESSION_COOKIE_NAME, '', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
@@ -128,7 +130,7 @@ export function clearSessionCookie(): void {
  * Retrieves the current authenticated user on the server
  */
 export async function getCurrentUser(): Promise<SessionUser | null> {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const sessionCookie = cookieStore.get(SESSION_COOKIE_NAME);
   if (!sessionCookie?.value) return null;
 

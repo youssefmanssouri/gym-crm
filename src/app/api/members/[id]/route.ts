@@ -5,13 +5,13 @@ import { updateMemberSchema } from '@/lib/validations';
 import { recordAuditLog, extractClientIp } from '@/lib/audit';
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export async function GET(request: Request, { params }: RouteParams) {
   try {
     const authUser = await requireAuth();
-    const { id } = params;
+    const { id } = await params;
 
     const profile = await prisma.memberProfile.findUnique({
       where: { id },
@@ -102,7 +102,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
   try {
     const authUser = await requireRole(['ADMIN', 'MANAGER', 'RECEPTIONIST']);
     const ipAddress = extractClientIp(request);
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json().catch(() => null);
     const parsed = updateMemberSchema.safeParse(body);
 
@@ -165,7 +165,7 @@ export async function DELETE(request: Request, { params }: RouteParams) {
   try {
     const authUser = await requireRole(['ADMIN', 'MANAGER']);
     const ipAddress = extractClientIp(request);
-    const { id } = params;
+    const { id } = await params;
 
     const profile = await prisma.memberProfile.findUnique({
       where: { id },
