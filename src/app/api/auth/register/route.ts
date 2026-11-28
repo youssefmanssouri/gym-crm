@@ -113,7 +113,7 @@ export async function POST(request: Request) {
 
     // 4. Create cryptographically signed session token & set HttpOnly cookie
     const token = createSessionToken(sessionUser);
-    setSessionCookie(token);
+    await setSessionCookie(token);
 
     return NextResponse.json(
       {

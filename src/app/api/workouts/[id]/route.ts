@@ -9,11 +9,11 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth();
-    const { id } = params;
+    const { id } = await params;
 
     const plan = await prisma.workoutPlan.findUnique({
       where: { id },
@@ -67,12 +67,12 @@ export async function GET(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth();
     const ipAddress = extractClientIp(request);
-    const { id } = params;
+    const { id } = await params;
 
     const existing = await prisma.workoutPlan.findUnique({ where: { id } });
     if (!existing) {
@@ -168,12 +168,12 @@ export async function PATCH(
 
 export async function DELETE(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth();
     const ipAddress = extractClientIp(request);
-    const { id } = params;
+    const { id } = await params;
 
     const existing = await prisma.workoutPlan.findUnique({ where: { id } });
     if (!existing) {

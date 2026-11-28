@@ -25,7 +25,7 @@ export async function POST() {
       phone: demoUser.phone || undefined,
       demo: true,
     };
-    setSessionCookie(createSessionToken(user));
+    await setSessionCookie(createSessionToken(user));
     return NextResponse.json({ success: true, user });
   } catch {
     return NextResponse.json(

@@ -25,7 +25,7 @@ function isDemoSession(token: string | undefined): boolean {
   }
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const sessionCookie = request.cookies.get(SESSION_COOKIE_NAME)?.value;
 

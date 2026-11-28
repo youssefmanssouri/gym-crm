@@ -5,7 +5,7 @@ export async function GET() {
   const user = await getCurrentUser();
 
   if (!user) {
-    clearSessionCookie();
+    await clearSessionCookie();
     return NextResponse.json(
       {
         authenticated: false,

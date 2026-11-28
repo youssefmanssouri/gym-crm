@@ -7,7 +7,7 @@
     "dev": "next dev",
     "build": "node scripts/build.js",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "test": "ts-node --compiler-options \"{\\\"module\\\":\\\"commonjs\\\",\\\"moduleResolution\\\":\\\"node\\\"}\" tests/security-regression.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy",
@@ -21,7 +21,7 @@
     "clsx": "^2.1.1",
     "framer-motion": "^11.5.4",
     "lucide-react": "^0.439.0",
-    "next": "^14.2.10",
+    "next": "^16.4.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "recharts": "^2.12.7",
@@ -34,8 +34,8 @@
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
     "autoprefixer": "^10.4.20",
-    "eslint": "^8.57.1",
-    "eslint-config-next": "^14.2.10",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.4.6",
     "postcss": "^8.4.45",
     "prisma": "^5.19.0",
     "tailwindcss": "^3.4.10",
@@ -44,14 +44,5 @@
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
-  },
-  "overrides": {
-    "@next/eslint-plugin-next": {
-      "glob": "^10.5.0",
-      "minimatch": "^11.0.1"
-    },
-    "@typescript-eslint/typescript-estree": {
-      "minimatch": "^11.0.1"
-    }
   }
 }
