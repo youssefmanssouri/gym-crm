@@ -17,7 +17,7 @@
 
 - **Live Application Demo**: [https://gym-crm-gules.vercel.app](https://gym-crm-gules.vercel.app)
 - **Engineering Case Study**: [https://www.youssefmanssouri.site/projects/gym-crm](https://www.youssefmanssouri.site/projects/gym-crm)
-- *Demo access: register a new account from the login page and choose Administrator or Gym Member. Registration is open for demo evaluation only; a private deployment should create admin accounts through an existing administrator.*
+- *Demo access: use **Explore the read-only demo** on the sign-in page to inspect the populated dashboard without modifying data. Self-service registration creates `MEMBER` accounts only; staff accounts are provisioned by an administrator.*
 
 ---
 
@@ -113,14 +113,14 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## 🧪 Testing
+## 🧪 Verification
 
-The repository includes comprehensive automated test suites covering authentication, CRUD persistence, RBAC permissions, and demo coherence:
+Run linting, TypeScript type-checking, and production build checks locally:
 
 ```bash
-node scratch/test-phase3b.js        # 45 Core CRM & Persistence tests
-node scratch/test-phase3d.js        # 45 Workout, Nutrition, AI & IDOR tests
-node scratch/test-demo-coherence.js # Demo fallback & checkout coherence
+npm run lint
+npx tsc --noEmit
+npm run build
 ```
 
 ---

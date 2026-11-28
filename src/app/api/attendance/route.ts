@@ -7,16 +7,20 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
-    await requireAuth();
+    const authUser = await requireAuth();
 
     // ?scope=today limits the log to check-ins since midnight (server time);
     // without it the latest 100 records are returned, as the reports expect.
     const todayOnly = new URL(request.url).searchParams.get('scope') === 'today';
     const now = new Date();
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const whereClause = {
+      ...(todayOnly ? { checkInTime: { gte: startOfToday } } : {}),
+      ...(authUser.role === 'MEMBER' ? { userId: authUser.id } : {}),
+    };
 
     const records = await prisma.attendance.findMany({
-      where: todayOnly ? { checkInTime: { gte: startOfToday } } : undefined,
+      where: Object.keys(whereClause).length > 0 ? whereClause : undefined,
       include: {
         user: true,
       },
