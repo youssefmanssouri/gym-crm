@@ -61,6 +61,17 @@ async function main() {
     delete process.env.NEXTAUTH_SECRET;
     assert.throws(() => auth.getSessionSecret(), /FATAL SECURITY CONFIGURATION/);
 
+    process.env.SESSION_SECRET = '   ';
+    assert.throws(() => auth.getSessionSecret(), /FATAL SECURITY CONFIGURATION/);
+
+    delete process.env.SESSION_SECRET;
+    process.env.NEXTAUTH_SECRET = 'apex-gym-crm-default-secure-secret-key-2026';
+    assert.throws(() => auth.getSessionSecret(), /FATAL SECURITY CONFIGURATION/);
+
+    process.env.NEXTAUTH_SECRET = 'explicit-production-nextauth-secret-key-2026';
+    assert.equal(auth.getSessionSecret(), 'explicit-production-nextauth-secret-key-2026');
+    delete process.env.NEXTAUTH_SECRET;
+
     process.env.SESSION_SECRET = 'apex-gym-crm-default-secure-secret-key-2026';
     assert.throws(() => auth.getSessionSecret(), /FATAL SECURITY CONFIGURATION/);
 
@@ -72,6 +83,7 @@ async function main() {
   } finally {
     (process.env as Record<string, string | undefined>).NODE_ENV = prevEnv;
     process.env.SESSION_SECRET = prevSecret;
+    delete process.env.NEXTAUTH_SECRET;
   }
 
   // 2. MEMBER role blocked from staff-only /api/analytics and /api/inventory
